@@ -7,11 +7,11 @@
 
 
 OUTPUT="_site.yml"
-TITLE="Training and Data Re-Analysis"
+TITLE="Group Normalization"
 
-DESCRIPTION="Section: ZZZ"
+DESCRIPTION="Section: YYY"
 
-echo 'name: "reAnalysis"' > $OUTPUT
+echo 'name: "regroup_norm"' > $OUTPUT
 echo 'output_dir: "."' >> $OUTPUT
 echo 'navbar:' >> $OUTPUT
 echo '  title: '$TITLE >> $OUTPUT

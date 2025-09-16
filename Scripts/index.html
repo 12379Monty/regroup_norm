@@ -10,9 +10,9 @@
 
 
 
-<meta name="date" content="2025-09-10" />
+<meta name="date" content="2025-09-16" />
 
-<title>Topics on the Statistical Analysis of Genomic Data</title>
+<title>Group Normalization</title>
 
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -260,7 +260,7 @@ $(document).ready(function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">Training and Data Re-Analysis</a>
+      <a class="navbar-brand" href="index.html">Group Normalization</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -279,22 +279,14 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Topics on the Statistical Analysis of Genomic Data</h1>
-<h4 class="date">September 10, 2025</h4>
+<h1 class="title toc-ignore">Group Normalization</h1>
+<h4 class="date">September 16, 2025</h4>
 
 </div>
 
 <div id="TOC">
 <ul>
-<li><a href="#published-article-review---ghandi-and-beer-2012" id="toc-published-article-review---ghandi-and-beer-2012"><span class="toc-section-number">1</span> Published article review - Ghandi and Beer (2012)</a></li>
-<li><a href="#spatial-transcriptomics" id="toc-spatial-transcriptomics"><span class="toc-section-number">2</span> Spatial Transcriptomics</a></li>
-<li><a href="#technical-reviews" id="toc-technical-reviews"><span class="toc-section-number">3</span> Technical reviews</a>
-<ul>
-<li><a href="#long-read-based-analysis-of-cancer-genomes" id="toc-long-read-based-analysis-of-cancer-genomes"><span class="toc-section-number">3.1</span> Long read-based analysis of cancer genomes</a></li>
-<li><a href="#deep-learning-based-latent-space-analysis-for-cancer-omics" id="toc-deep-learning-based-latent-space-analysis-for-cancer-omics"><span class="toc-section-number">3.2</span> Deep learning-based latent space analysis for cancer omics</a></li>
-<li><a href="#non-negative-matrix-factorization-in-cancer-omics" id="toc-non-negative-matrix-factorization-in-cancer-omics"><span class="toc-section-number">3.3</span> Non-negative matrix factorization in cancer omics</a></li>
-</ul></li>
-<li><a href="#references" id="toc-references"><span class="toc-section-number">4</span> References</a></li>
+<li><a href="#references" id="toc-references"><span class="toc-section-number">1</span> References</a></li>
 </ul>
 </div>
 
@@ -354,198 +346,18 @@ g-table-intro h4 {
 <!-- ######################################################################## -->
 <!-- ######################################################################## -->
 <p><br/></p>
-<div id="published-article-review---ghandi-and-beer-2012" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> Published article review - Ghandi and Beer (2012)</h1>
-<ul>
-<li><p><strong>Group Normalization for Genomic Data</strong>
-by Ghandi and Beer (2012)<span class="citation">[<a href="#ref-Ghandi:2012ab">1</a>]</span>)</p></li>
-<li><p><strong>Main Finding</strong> is that a pre-processing step applied to
-Affimetrix tiling array data improves the quality of the data</p></li>
-</ul>
-<p>
-<p/>
-<ul>
-<li><strong>Nomenclature</strong>.
-<ul>
-<li>Normalization has different meanings in different context.<br />
-“Normalization” in this paper
-refers to a within group or sample probe effect correction.</li>
-<li>In the context of Omic data analysis, <em>normalization</em> is usually
-reserved for transformations which affect between sample variability.
-<ul>
-<li>See <a href="https://incob.apbionet.org/incob14/assets/INCOB2014/Terry-SpeedInCoB2014.pdf">Normalization of omic data after 2007 (INCOB2014)</a>
-and <a href="_intro_IUV.html">Identification of Unwanted Variability: Introduction</a></li>
-</ul></li>
-<li>A standard language to speak clearly about variability is sorely needed.
-<ul>
-<li><a href="claude_3.7_GNGD-project/TerminologyVariabillityOmic.html">claude 3.7 - Terminology for Variability in Genomic Data Analysis</a></li>
-</ul></li>
-</ul></li>
-</ul>
-<p>
-<p/>
-<ul>
-<li><a href="claude_3.7_GNGD-project/GN4GD_implementationGuide.html">Data Analysis Plan</a></li>
-</ul>
-<!--
-claude 3.7 reports
-   - [Background - Affy Tiling Arrays](claude_3.7_GNGD-chat/affy_tiling_arrays.html0)
--->
-<!--  #################################################
-## Outline of presentation {-}
-
-<p><p/>
-* Describe the Affymetrix Tiling Array design,
-the collected data, and typical analyses.
-   - we don't have to spend a lot of time on this old technology,
-but it's hard to avoid entirely as those data are of the sort
-which led to the development of the GN normalization.
-   - in the end the question is not so much 
-does the preprocessing step work, as **when does it work**.
-
-## Download the data analyzed in the report
-
-* Figures 6 and 7 data are from 
-He et al. 2008 [@He:2008aa].
-   - [GSE12163](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=%20GSE12163)
-* Figure 8 data are from Johnson et al. (2008) [@Johnson:2008aa]
-   - [GSE10114](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE10114)
-* Figure S4 data are from Lee et al. (2007) [@Lee:2007aa]
-   - [ArrayExpress database](http://www.ebi.ac.uk/arrayexpress/) 
-under accession code [E-MEXP-1172](https://www.ebi.ac.uk/biostudies/ArrayExpress/studies/E-MEXP-1172?query=E-MEXP-1172).
-
-* Supplement the figures in the report with others
-which further characterize the operating characteristics of the
-proposed pre-processing step (called normalization in the paper)
-
-<br/>
-
-## Notes
-
-### Normalization Verification - Minimal Requirement {-}
-
-* "Normalization" is the processing of data in a dataset with the intent of removing
-unwanted (technical) variability, while maintaining the wanted (biological) variability.
-
-<p><p/>
-* To assert the validity of a normalization procedure, at minimum the following must be 
-examined and summarized, as appropriate:
-   - the vector of values being normalized, before and after, and this done for studies
-which have unwanted variability of the sort expected,
-as well as for studies which don't seem to bear any significant
-amount of unwanted variability
-   - the vector of site scores (for detection, for example)
-      - for known positive and known negative sites,
-      - and this for studies which have unwanted variability of the sort expected
-and for studies which don't.
-
-* The validation dataset  should include typical samples with typical 
-levels of unwanted variability
-
-<br/>
-
-### Quantile Normalization **Does Not** Require Identical Distributions {-}
-
-<p><p/>
-* In RMA, quantile normalization was used because the resulting probeset summaries
-performed  best at the typical analysis tasks the microarray data were used for
-(Irizarry et al. (2003) [@Irizarry:2003aa], Bolstad et al. (2003) [@Bolstad:2003aa].
-   - not because this was dictated by some modeling assumptions.
-
-<p><p/>
-* Note that when working with chips, local image artifacts are part of every dataset
-    and my be useful in as assessment exercise.
-
- ################################################################### -->
+<p>Section: YYY</p>
+<li>
+<a href="_GN4GD_analysis.html">_GN4GD_analysis.html</a>
+</li>
+<li>
+<a href="_intro_IUV.html">_intro_IUV.html</a>
+</li>
 <p><br/></p>
-</div>
-<div id="spatial-transcriptomics" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Spatial Transcriptomics</h1>
-<ul>
-<li>10x Visium spatial data consists of spots comprising 1-10 cells
-<ul>
-<li>working out what’s in a spot one of the challenges of
-working with these data.</li>
-</ul></li>
-<li>Cellular composition is estimated by deconvolving 10x Visium data.
-Several tools are available.
-<ul>
-<li>mapping-based methods map single cells to spatial transcriptomics (ST) data based on gene expression similarity
-<span style="color: blue;">
-<ul>
-<li>NovospaRc, Tangram, CellTrek, and CytoSPACE
-</span></li>
-</ul></li>
-<li>deconvolution-based methods attempt to reconstruct the ST
-observations by modeling the experimental process
-<span style="color: blue;">
-<ul>
-<li>CARD, RCTD, cell2location, DestVI, SpatialDWLS, SPOTlight, STRIDE, CellDART, Celloscope, DSTG, and Stereoscope
-</span>
-as a combination of single cells.</li>
-</ul></li>
-</ul></li>
-<li>Compare and contrast the methods.
-<ul>
-<li>Marie currently uses RCTD.</li>
-</ul></li>
-</ul>
-<p><br/></p>
-</div>
-<div id="technical-reviews" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> Technical reviews</h1>
-<ul>
-<li>Technical reviews of the state of the art for analysis techniques
-in the areas of research of some PhD projects would make good
-presentation topics.</li>
-</ul>
-<div id="long-read-based-analysis-of-cancer-genomes" class="section level2" number="3.1">
-<h2><span class="header-section-number">3.1</span> <a href="https://www.wehi.edu.au/project/long-read-based-analysis-of-cancer-genomes/">Long read-based analysis of cancer genomes</a></h2>
-<ul>
-<li>Oxford Nanopore, Pacbio and other long-read sequencing technologies
-enable deep characterisation of cancer genomes, but remain relatively
-inaccessible. Based around existing and planned long read data from
-matched tumour and normal (blood) genomes, as well as
-simulated data, this project will deliver pipelines and new methods for
-long read-based characterisation of cancer genomes.</li>
-</ul>
-<p><br/></p>
-</div>
-<div id="deep-learning-based-latent-space-analysis-for-cancer-omics" class="section level2" number="3.2">
-<h2><span class="header-section-number">3.2</span> <a href="https://www.wehi.edu.au/project/deep-learning-based-latent-space-analysis-for-cancer-omics/">Deep learning-based latent space analysis for cancer omics</a></h2>
-<ul>
-<li><p>Deep learning methods are being used to identify lower dimensional
-latent spaces underlying complex disease datasets. Interpretation of
-the latent dimensions is possible using different approaches, but
-there is much room to improve understanding best practice.</p></li>
-<li><p>The goal of this project is to explore and refine the use
-of deep learning methods to analyse and interpret latent spaces of complex
-cancer omics data.</p></li>
-</ul>
-<p><br/></p>
-</div>
-<div id="non-negative-matrix-factorization-in-cancer-omics" class="section level2" number="3.3">
-<h2><span class="header-section-number">3.3</span> <a href="https://www.wehi.edu.au/project/non-negative-matrix-factorization-in-cancer-omics/">Non-negative matrix factorization in cancer omics</a></h2>
-<ul>
-<li><p>Non-negative matrix factorisation (NMF) is an unsupervised
-machine learning technique for identifying patterns in data. NMF has a
-long history of use in bioinformatics and a number of NMF methods
-have been developed specifically for omics data. This also includes semi-supervised approaches to NMF.</p></li>
-<li><p>However, how to best apply unsupervised or semi-supervised
-approaches is currently not clear. This project will deliver a benchmark
-of NMF methods, and develop new methods and guidelines to
-make these tools more accessible and their results more interpretable.</p></li>
-</ul>
-<p><br/></p>
-<p><br/></p>
-</div>
-</div>
-<div id="references" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> References</h1>
-<div id="refs" class="references csl-bib-body">
-<div id="ref-Ghandi:2012ab" class="csl-entry">
-<div class="csl-left-margin">1. </div><div class="csl-right-inline">Ghandi, M., and Beer, M.A. (2012). <a href="https://doi.org/10.1371/journal.pone.0038695">Group normalization for genomic data.</a> PLoS One <em>7</em>, e38695.</div>
-</div>
+<div id="references" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> References</h1>
+<div id="refs">
+
 </div>
 </div>
 

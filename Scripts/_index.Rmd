@@ -1,3 +1,8 @@
 ---
-title: Training and Data Re-Analysis
+title: Group Normalization
 ---
+
+Section: YYY
+
+<li><a href="_GN4GD_analysis.html">_GN4GD_analysis.html</a></li>
+<li><a href="_intro_IUV.html">_intro_IUV.html</a></li>

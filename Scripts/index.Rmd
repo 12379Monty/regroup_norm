@@ -1,5 +1,5 @@
 ---
-title: "Topics on the Statistical Analysis of Genomic Data"
+title: "Group Normalization"
 ###\nLessons from 20 years of expererience"
 ###author: "[Francois Collin](https://www.linkedin.com/in/francoisz/)"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
@@ -17,9 +17,9 @@ output:
     # this has no effect
     number_sections: yes
     # css: ['../_css/pandoc3.css', '../_css/myMargins.css']
-bibliography: [../Refs/group_norm.bib,../../_bibFiles/_healthy_aging.bib, ../../../_bibFiles/_Breiman.bib, ../../../_bibFiles/_Freedman.bib, ../../../_bibFiles/_Yu.bib, ../../../_bibFiles/_RUV.bib, ../../../_bibFiles/_RMA.bib, ../../../_bibFiles/_scRNAseq_norm.bib]
-csl: ../../_csl/cell-numeric.csl
-link-citations: true
+#bibliography: [../Refs/group_norm.bib,../../_bibFiles/_healthy_aging.bib, ../../../_bibFiles/_Breiman.bib, ../../../_bibFiles/_Freedman.bib, ../../../_bibFiles/_Yu.bib, ../../../_bibFiles/_RUV.bib, ../../../_bibFiles/_RMA.bib, ../../../_bibFiles/_scRNAseq_norm.bib]
+#csl: ../../_csl/cell-numeric.csl
+#link-citations: true
 ---
 
 ```{css sidenote, echo = FALSE}
@@ -133,179 +133,7 @@ PREFIX <- "index" #- replace by FLOWCELL???
 
 <br/>
 
-# Published article review - Ghandi and Beer (2012)
-
-* **Group Normalization for Genomic Data**
-by Ghandi and Beer (2012)[@Ghandi:2012ab]) 
-
-* **Main Finding** is that a pre-processing step applied to
-Affimetrix tiling array data improves the quality of the data
-
-<p><p/>
-* **Nomenclature**.
-   - Normalization has different meanings in different context.  
-"Normalization" in this paper
-refers to a within group or sample probe effect correction.
-   - In the context of Omic data analysis, *normalization* is usually
-reserved for transformations which affect between sample variability.
-      - See [Normalization of omic data after 2007 (INCOB2014)](https://incob.apbionet.org/incob14/assets/INCOB2014/Terry-SpeedInCoB2014.pdf)
-and [Identification of Unwanted Variability: Introduction](_intro_IUV.html)
-   - A standard language to speak clearly about variability is sorely needed.
-      - [claude 3.7 -  Terminology for Variability in Genomic Data Analysis](claude_3.7_GNGD-project/TerminologyVariabillityOmic.html)
-
-
-<p><p/>
-* [Data Analysis Plan](claude_3.7_GNGD-project/GN4GD_implementationGuide.html)
-
-<!--
-claude 3.7 reports
-   - [Background - Affy Tiling Arrays](claude_3.7_GNGD-chat/affy_tiling_arrays.html0)
--->
-
-<!--  #################################################
-## Outline of presentation {-}
-
-<p><p/>
-* Describe the Affymetrix Tiling Array design,
-the collected data, and typical analyses.
-   - we don't have to spend a lot of time on this old technology,
-but it's hard to avoid entirely as those data are of the sort
-which led to the development of the GN normalization.
-   - in the end the question is not so much 
-does the preprocessing step work, as **when does it work**.
-
-## Download the data analyzed in the report
-
-* Figures 6 and 7 data are from 
-He et al. 2008 [@He:2008aa].
-   - [GSE12163](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=%20GSE12163)
-* Figure 8 data are from Johnson et al. (2008) [@Johnson:2008aa]
-   - [GSE10114](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE10114)
-* Figure S4 data are from Lee et al. (2007) [@Lee:2007aa]
-   - [ArrayExpress database](http://www.ebi.ac.uk/arrayexpress/) 
-under accession code [E-MEXP-1172](https://www.ebi.ac.uk/biostudies/ArrayExpress/studies/E-MEXP-1172?query=E-MEXP-1172).
-
-* Supplement the figures in the report with others
-which further characterize the operating characteristics of the
-proposed pre-processing step (called normalization in the paper)
-
-<br/>
-
-## Notes
-
-### Normalization Verification - Minimal Requirement {-}
-
-* "Normalization" is the processing of data in a dataset with the intent of removing
-unwanted (technical) variability, while maintaining the wanted (biological) variability.
-
-<p><p/>
-* To assert the validity of a normalization procedure, at minimum the following must be 
-examined and summarized, as appropriate:
-   - the vector of values being normalized, before and after, and this done for studies
-which have unwanted variability of the sort expected,
-as well as for studies which don't seem to bear any significant
-amount of unwanted variability
-   - the vector of site scores (for detection, for example)
-      - for known positive and known negative sites,
-      - and this for studies which have unwanted variability of the sort expected
-and for studies which don't.
-
-* The validation dataset  should include typical samples with typical 
-levels of unwanted variability
-
-<br/>
-
-### Quantile Normalization **Does Not** Require Identical Distributions {-}
-
-<p><p/>
-* In RMA, quantile normalization was used because the resulting probeset summaries
-performed  best at the typical analysis tasks the microarray data were used for
-(Irizarry et al. (2003) [@Irizarry:2003aa], Bolstad et al. (2003) [@Bolstad:2003aa].
-   - not because this was dictated by some modeling assumptions.
-
-<p><p/>
-* Note that when working with chips, local image artifacts are part of every dataset
-	and my be useful in as assessment exercise.
-
- ################################################################### -->
-
-<br/>
-
-# Spatial Transcriptomics 
-
-
-* 10x  Visium spatial data consists of spots comprising 1-10 cells
-   - working out what’s in a spot  one of the challenges of
-working with these data.
-
-* Cellular composition is estimated by deconvolving 10x Visium data.
-Several tools are available. 
-   - mapping-based methods map single cells to spatial transcriptomics (ST) data based on gene expression similarity
-<span style="color: blue;">
-      - NovospaRc, Tangram, CellTrek, and CytoSPACE
-</span>
-
-   - deconvolution-based methods attempt to reconstruct the ST 
-observations by modeling the experimental process 
-<span style="color: blue;">
-      - CARD, RCTD, cell2location, DestVI, SpatialDWLS, SPOTlight, STRIDE, CellDART, Celloscope, DSTG, and Stereoscope
-</span>
-as a combination of single cells. 
-
-
-*  Compare and contrast the methods.
-   -  Marie currently uses RCTD. 
-
-<br/>
-
-# Technical reviews 
-
-* Technical reviews of the state of the art for analysis techniques
-in the areas of research of some PhD projects would make good
-presentation topics.
-
-## [Long read-based analysis of cancer genomes](https://www.wehi.edu.au/project/long-read-based-analysis-of-cancer-genomes/) 
-
-* Oxford Nanopore, Pacbio and other long-read sequencing technologies
-enable deep characterisation of cancer genomes, but remain relatively
-inaccessible. Based around existing and planned long read data from
-matched tumour and normal (blood) genomes, as well as
-simulated data, this project will deliver pipelines and new methods for
-long read-based characterisation of cancer genomes.
-
-
-<br/>
-
-
-## [Deep learning-based latent space analysis for cancer omics](https://www.wehi.edu.au/project/deep-learning-based-latent-space-analysis-for-cancer-omics/)
-
-* Deep learning methods are being used to identify lower dimensional
-latent spaces underlying complex disease datasets. Interpretation of
-the latent dimensions is possible using different approaches, but
-there is much room to improve understanding best practice.
-
-* The goal of this project is to explore and refine the use
-of deep learning methods to analyse and interpret latent spaces of complex
-cancer omics data.
-
-<br/>
-
-## [Non-negative matrix factorization in cancer omics](https://www.wehi.edu.au/project/non-negative-matrix-factorization-in-cancer-omics/)
-
-* Non-negative matrix factorisation (NMF) is an unsupervised
-machine learning technique for identifying patterns in data. NMF has a
-long history of use in bioinformatics and a number of NMF methods
-have been developed specifically for omics data. This also includes semi-supervised approaches to NMF.
-
-* However, how to best apply unsupervised or semi-supervised
-approaches is currently not clear. This project will deliver a benchmark
-of NMF methods, and develop new methods and guidelines to
-make these tools more accessible and their results more interpretable.
-
-<br/>
-
-
-```{r , child=c('_index.Rmd'), eval=F}
+```{r , child=c('_index.Rmd'), eval=T}
 ```
 
 <br/>

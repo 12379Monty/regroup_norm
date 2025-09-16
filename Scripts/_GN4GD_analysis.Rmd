@@ -16,7 +16,7 @@ output:
     # this has no effect
     number_sections: yes
     #s: ['../_css/pandoc3.css', '../_css/myMargins.css']
-bibliography: [../Refs/group_norm.bib,../../_bibFiles/_healthy_aging.bib, ../../../_bibFiles/_Breiman.bib, ../../../_bibFiles/_Freedman.bib, ../../../_bibFiles/_Yu.bib, ../../../_bibFiles/_RUV.bib, ../../../_bibFiles/_RMA.bib, ../../../_bibFiles/_scRNAseq_norm.bib]
+bibliography: [../Refs/group_norm.bib,../../_bibFiles/_healthy_aging.bib, ../../_bibFiles/_Breiman.bib, ../../_bibFiles/_Freedman.bib, ../../_bibFiles/_Yu.bib, ../../_bibFiles/_RUV.bib, ../../_bibFiles/_RMA.bib, ../../_bibFiles/_scRNAseq_norm.bib]
 csl: ../../_csl/cell-numeric.csl
 link-citations: true
 ---
@@ -142,14 +142,14 @@ PREFIX <-  FN
 
 ``` 
 
-```{r gn4gd-load-packages,  include=FALSE, echo=FALSE, results='hide', message=FALSE, cache=T}1
+```{r gn4gd-load-packages,  include=FALSE, echo=FALSE, results='hide', message=FALSE, cache=T}
 
 # Load required packages
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
 # Install required packages if not already installed
-required_packages <- c("limma", "p/reprocessCore", "ArrayExpress", "GenomicRanges",
+required_packages <- c("limma", "reprocessCore", "ArrayExpress", "GenomicRanges",
                        "ggplot2", "rtracklayer", "Biostrings", "BSgenome.Scerevisiae.UCSC.sacCer3")
 for (pkg in required_packages) {
   if (!requireNamespace(pkg, quietly = TRUE))

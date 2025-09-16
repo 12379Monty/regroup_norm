@@ -1,7 +1,7 @@
-name: "reAnalysis"
+name: "regroup_norm"
 output_dir: "."
 navbar:
-  title: Training and Data Re-Analysis
+  title: Group Normalization
   left:
     - text: "Home"
       href: index.html

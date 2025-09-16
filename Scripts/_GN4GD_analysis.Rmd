@@ -173,9 +173,9 @@ library(BSgenome.Scerevisiae.UCSC.sacCer3)
 <br/>
 
 * We are interested in learning about the preprocessing step referred to as 
-normalization in **Group Normalization for Genomic Data**, Ghandi and Beer 2012 [@Ghandi:2012aa]^[
+normalization in **Group Normalization for Genomic Data**, Ghandi and Beer 2012 [@Ghandi:2012aa]
 
-* David 2006 [@David:2006] and Huber 2006 [@Huber:2006aa] offer an alternative  procedurure and provide data
+* David 2006 [@David:2006aa] and Huber 2006 [@Huber:2006aa] offer an alternative  procedurure and provide data
 and software to assess performance.
 
 
@@ -354,7 +354,7 @@ positive and negative controls.  (e.g., +1 nucleosomes at well-studied genes)
 
 <br/>
 
-## Workflow {-}
+## Workflow }
 
 <p><p/>
 * **Raw Data Examination and QC** 
@@ -364,7 +364,7 @@ positive and negative controls.  (e.g., +1 nucleosomes at well-studied genes)
 
 
 * **Analysis Steps**:
-   -  <span style="color: blue;">**Normalization**: Correct for probe-specific effects (the focus of the Group Normalization method)
+   -  <span style="color: blue;">**Normalization**<span/>,: Correct for probe-specific effects (the focus of the Group Normalization method)
    -  **Smoothing**: Apply running average or other smoothing techniques to reduce noise
    -  **Peak Calling**: Identify nucleosome positions based on signal peaks
    -  **Comparative Analysis**: Compare nucleosome positions between conditions
@@ -385,23 +385,50 @@ positive and negative controls.  (e.g., +1 nucleosomes at well-studied genes)
 
 ## Group Normalization {}
 
-The core algorithm has two variants:
+* Group Normalization has the property that only probe intensities in the test samples
+are used so that there is no need foor a global adjustment to correct for differeces between test 
+and reference.
 
-* **Binary Group Normalization**:
-   - For each probe, find N (~1000) reference probes with similar values in a reference dataset
-   - the low (~30%) and high (~30%) signals from these reference probes to estimate the dynamic range
-   - Normalizing these parameters: `normalized_value = (value - μ_low) / (μ_high - μ_low)`
+* The reference sample probe intensities are only used to select probes:
+   - For each probe, find N (~1000) reference probes with similar values in the reference sample.
+       - This forms a "comparable set of probes", one set for each probe.
+       - The test sample probe intensities on the comparable probe set provides a reference distribution of
+probe intensities for each test sample probe.
 
-* **Quantile-based Group Normalization**:
-   - Similar to binary method but the rank of the probe in its reference set
+* The so-called <span style="color: blue;">binary group normalization<span/> method Maoanconverts the probe indneities into somethhing that resembles
+a standard unit:   `normalized_value = (value - μ_low) / (μ_high - μ_low)`
 
 
-* **Cross Normalization**:
-   - Normalize dataset Bing A as reference
-   - Normalize dataset Aing B as reference
-   - The two resulting datasets highlight differences between conditions
+* <span style="color: blue;">**Quantile-based Group Normalization**:<span/>, maps each probe
+to its rank or pecenrtile in the comparable distribution.
 
-<br/>
+* This is very similar to local regression analysis, loess. 
+
+<!--
+### Figure 3A {-}
+
+```{r}
+CAPTION <- readLines("_GN4GD_analysis_figures/Figure3A.txt", warn=F)
+```
+
+
+ <style>
+    p.caption {
+      font-size: 0.9em; /* Adjust font size relative to default */
+      line-height: 1.2; /* Adjust line spacing */
+      max-width: 600px; /* Limit caption width to prevent overly long lines */
+      word-wrap: break-word; /* Allow long words to break */
+    }
+    </style>
+
+
+
+
+```{r gn4gd-Figure3A, fig.cap=CAPTION}
+
+knitr::include_graphics("_GN4GD_analysis_figures/Figure3A.png", dpi=200)
+
+```
 
 
 <br/>
@@ -421,17 +448,7 @@ The core algorithm has two variants:
 
 <br/>
 
-
-# Data Analysis - Lee et al. 2007 [@Lee:2007aa] {.tabset}
-
-* Of the key R packages - `tilingArray`, `AffyTiling`, `Starr` and `rMAT` -
-only [tilingArray](https://www.bioconductor.org/packages/release/bioc/html/tilingArray.html)
-could be loaded.
-   - tilingArray provides useful visualizations by chrom coordinates
-   - tilingArray provides functionality for normalization as described in
-David et al. 2006 [@David:2006aa] and 
-Huber et al. 2006 [@Huber:2006aa].
-    
+# Data Analysis 
 
 ## Home {-}
 
@@ -631,6 +648,24 @@ The paper made use of several datasets:
  # ARCHIVE CODE BELOW
 ####################################################
 
+# Data Analysis - Lee et al. 2007 [@Lee:2007aa] {.tabset}
+
+* Of the key R packages - `tilingArray`, `AffyTiling`, `Starr` and `rMAT` -
+only [tilingArray](https://www.bioconductor.org/packages/release/bioc/html/tilingArray.html)
+could be loaded.
+   - tilingArray provides useful visualizations by chrom coordinates
+   - tilingArray provides functionality for normalization as described in
+David et al. 2006 [@David:2006aa] and 
+Huber et al. 2006 [@Huber:2006aa].
+    
+* **Cross Normalization**:
+   - Normalize dataset Bing A as reference
+   - Normalize dataset Aing B as reference
+   - The two resulting datasets highlight differences between conditions
+
+<br/>
+
+
 ### Experimental Design {-} 
 <p><p/>
 * **Where is the randomness?**  
@@ -695,4 +730,4 @@ cat(sprintf(
 # nohup Rscript -e "rmarkdown::render('_GN4GD_analysis.Rmd')" > _GN4GD_analysis.log  &
 
  
----->
+-->

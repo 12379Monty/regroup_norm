@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="450" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="450" fill="white"/>
+  
+  <!-- DNA strand -->
+  <path d="M 50 200 Q 100 180, 150 200 Q 200 220, 250 200 Q 300 180, 350 200 Q 400 220, 450 200 Q 500 180, 550 200 Q 600 220, 650 200 Q 700 180, 750 200" 
+        stroke="black" stroke-width="2" fill="none"/>
+  
+  <!-- Nucleosomes -->
+  <!-- -1 Nucleosome -->
+  <circle cx="150" cy="200" r="40" fill="#6baed6" opacity="0.8" stroke="black" stroke-width="1"/>
+  <text x="150" y="205" font-family="Arial" font-size="14" text-anchor="middle" fill="black">-1</text>
+  
+  <!-- +1 Nucleosome -->
+  <circle cx="350" cy="200" r="40" fill="#9ecae1" opacity="0.8" stroke="black" stroke-width="1"/>
+  <text x="350" y="205" font-family="Arial" font-size="14" text-anchor="middle" fill="black">+1</text>
+  
+  <!-- +2 Nucleosome -->
+  <circle cx="500" cy="200" r="40" fill="#c6dbef" opacity="0.8" stroke="black" stroke-width="1"/>
+  <text x="500" y="205" font-family="Arial" font-size="14" text-anchor="middle" fill="black">+2</text>
+  
+  <!-- +3 Nucleosome -->
+  <circle cx="650" cy="200" r="40" fill="#deebf7" opacity="0.8" stroke="black" stroke-width="1"/>
+  <text x="650" y="205" font-family="Arial" font-size="14" text-anchor="middle" fill="black">+3</text>
+  
+  <!-- Nucleosome-Depleted Region (NDR) -->
+  <rect x="190" y="180" width="120" height="40" fill="#ffeda0" opacity="0.6" rx="5" ry="5" stroke="black" stroke-width="1"/>
+  <text x="250" y="205" font-family="Arial" font-size="14" text-anchor="middle" fill="black">NDR</text>
+  
+  <!-- TSS marker -->
+  <line x1="310" y1="150" x2="310" y2="250" stroke="red" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="310" y="140" font-family="Arial" font-size="14" text-anchor="middle" fill="red">TSS</text>
+  
+  <!-- Labels -->
+  <text x="400" y="50" font-family="Arial" font-size="20" text-anchor="middle" font-weight="bold" fill="black">Nucleosome Organization in Yeast (S. cerevisiae)</text>
+  <text x="400" y="80" font-family="Arial" font-size="16" text-anchor="middle" fill="black">Stereotypical arrangement around gene promoters</text>
+  
+  <!-- Annotations - Improved spacing -->
+  <text x="100" y="320" font-family="Arial" font-size="14" fill="black">Well-positioned -1 nucleosome</text>
+  <line x1="150" y1="245" x2="150" y2="315" stroke="black" stroke-width="1"/>
+  
+  <text x="250" y="360" font-family="Arial" font-size="14" fill="black">Nucleosome-Depleted Region (NDR)</text>
+  <line x1="250" y1="225" x2="250" y2="355" stroke="black" stroke-width="1"/>
+  
+  <text x="350" y="320" font-family="Arial" font-size="14" fill="black">Well-positioned +1 nucleosome</text>
+  <line x1="350" y1="245" x2="350" y2="315" stroke="black" stroke-width="1"/>
+  
+  <text x="580" y="360" font-family="Arial" font-size="14" fill="black">Regularly spaced array</text>
+  <text x="580" y="380" font-family="Arial" font-size="14" fill="black">over gene body</text>
+  <line x1="575" y1="225" x2="575" y2="355" stroke="black" stroke-width="1"/>
+  
+  <!-- Direction arrow -->
+  <line x1="50" y1="420" x2="750" y2="420" stroke="black" stroke-width="2"/>
+  <polygon points="750,420 740,415 740,425" fill="black"/>
+  <text x="400" y="440" font-family="Arial" font-size="14" text-anchor="middle" fill="black">5' ← Upstream — Downstream → 3'</text>
+</svg>

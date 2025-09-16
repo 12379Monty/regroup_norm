@@ -1,0 +1,240 @@
+---
+title: Activivities tracking - 2025 Q1
+output:
+  # for use of .tabset
+  bookdown::html_document2:
+    code_download: true
+    code_folding: hide
+    toc: true
+    fig_caption: yes
+    number_sections: yes
+    css: ../../css/pandoc3.css
+bibliography: [../_bibFiles/_healthy_aging.bib, ../_bibFiles/_ref_free_genom_inf.bib, ../../_bibFiles/_Breiman.bib, ../../_bibFiles/_Yu.bib, ../../_bibFiles/_Freedman.bib, ../../_bibFiles/_RUV.bib, ../../_bibFiles/_Yu.bib, ../../_bibFiles/_rand_cause_inf.bib]
+csl: ../_csl/cell-numeric.csl
+link-citations: true
+---
+
+ 
+
+<style>
+
+.watermark {
+  opacity: 0.2;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  font-size: 500%;
+  color: #00407d;
+}
+
+</style>
+
+---
+
+
+```{r GlobalOptions, results="hide", include=T, cache=FALSE}
+
+knitr::opts_knit$set(stop_on_error = 2L) #really make it stop
+options(knitr.table.format = 'html')
+
+```
+
+```{r activities-Prelims, include=F, echo=FALSE, results='hide', message=FALSE,cache=F}
+
+FN <- "_activities"
+if(sum(grepl(FN, list.files()))==0) stop("Check FN")
+
+PREFIX <- "FN" #- replace by FLOWCELL???
+
+suppressPackageStartupMessages(require(methods))  
+suppressPackageStartupMessages(require(rmarkdown))  
+suppressPackageStartupMessages(require(bookdown))  
+
+suppressPackageStartupMessages(require(knitr))  
+options(stringsAsFactors=F)  
+
+suppressPackageStartupMessages(require(data.table)) 
+options(datatable.fread.datatable=F)
+
+suppressPackageStartupMessages(require(plyr))
+suppressPackageStartupMessages(require(dplyr))
+suppressPackageStartupMessages(require(magrittr))
+
+# Shotcuts for knitting and redering while in R session (Invoke interactive R from R/Scripts folder)
+kk <- function(n='') knitr::knit2html(paste("t", n, sep=''), envir=globalenv(),
+      output=paste(FN,".html", sep=''))
+
+rr <- function(n='') rmarkdown::render(paste("t", n, sep=''), envir=globalenv(),
+      output_file=paste(FN,".html", sep='')) ##, output_dir='Scripts')
+
+bb <- function(n='') browseURL(paste(FN,".html", sep=''))
+
+# The usual shotcuts
+zz <- function(n='') source(paste("t", n, sep=''))
+
+# Using relative paths:
+# Script will be invoked from R/Scripts folder.  Make 'R' the WRKDIR.
+WRKDIR <- ('..')
+
+# Not needed if path is relative ...
+if(!file.exists(WRKDIR)) stop("WRKDIR ERROR: ", WRKDIR)
+
+# do once
+#setwd(WRKDIR)
+
+# file rmarkdown file management options: cache, figures
+cache_DIR <- file.path(WRKDIR, 'Scripts', 'cache/index/')
+suppressMessages(dir.create(cache_DIR, recursive=T))
+opts_chunk$set(cache.path=cache_DIR)
+
+# NOTE: need to add FC to figures path
+# due to confluence "feature" of keeping the filename of embedded figures
+
+figures_DIR <- file.path(WRKDIR, 'Scripts', 'figures/index/')
+#figures_DIR <- file.path('figures/index')
+
+suppressMessages(dir.create(figures_DIR, recursive=T))
+opts_chunk$set(fig.path=paste0(figures_DIR))###, FC))
+
+tables_DIR <- file.path(WRKDIR, 'Scripts', 'tables/index/')
+suppressMessages(dir.create(tables_DIR, recursive=T))
+
+# need a local copy of help_DIR
+#help_DIR <- file.path(WRKDIR, 'Scripts', 'help_files')
+help_DIR <- file.path('.', 'help_files')
+suppressMessages(dir.create(help_DIR, recursive=T))
+
+#temp_DIR <- file.path(WRKDIR, 'Scripts', 'temp_files')
+#suppressMessages(dir.create(temp_DIR, recursive=T))
+
+
+```
+<!-- ######################################################################## -->
+
+
+```{r index-utilityFns, echo=T}
+
+ source('utilityFns.r')
+ #source('utilities/Mymva.r')
+
+round_df <- function(x, digits) {
+    # round all numeric variables
+    # x: data frame 
+    # digits: number of digits to round
+    numeric_columns <- sapply(x, mode) == 'numeric'
+    x[numeric_columns] <-  round(x[numeric_columns], digits)
+    x
+}
+```
+<!-- ######################################################################## -->
+
+
+<br/>
+
+# Training {.tabset}
+
+
+<br/>
+
+## AI  {-}
+
+### Coursera  {-}
+
+### Book {-}
+
+
+<br/>
+
+
+
+
+## Accounting   {-}
+
+### Coursera  {-}
+
+### Book {-}
+
+
+<br/>
+
+## Other {-}
+
+
+
+<br/>
+
+<br/>
+
+# References
+<div id="refs"></div>
+
+
+<br/>
+
+# Appendix: Full list of reports 
+
+```{r , child=c('_index.Rmd')}
+```
+
+
+<br/>
+
+
+
+
+```{r, echo=FALSE}
+  knitr::knit_exit()
+```
+
+##########################################
+### ARCHIVAL CODE BELOW
+##########################################
+
+* 09/26 Update
+
+```
+I reuploaded the file and made the following changes:
+
+1. I simplified the Cornell Diagnosis column to TCMR, No TCMR or NA.
+Samples labeled NA indicate that we do not have TCMR or No TCMR
+clinical outcomes at this time.
+
+2. I added another column “PVAN Status” to be used for the BKV Score.  
+Values are either NA or PVAN.  Samples labeled NA indicate that we do 
+not have PVAN clinical outcomes at this time.
+
+```
+
+`r CAPTION = "CareDx vs Cornell Values - Filtrates"`
+
+
+```{r index-m4a-filtrates-cornell-caredx-plot-1, fig.cap=CAPTION,echo=F, fig.height=6, fig.width=11}
+
+ knitr::include_graphics(
+"figures/M4A/m4a-filtrates-cornell-caredx-plot-1.png",dpi=50)
+
+```
+
+`r CAPTION = "CareDx vs Cornell Values - cDNAs"`
+
+
+```{r index-m4a-cdna-cornell-caredx-plot-1, fig.cap=CAPTION,echo=F, fig.height=6, fig.width=11}
+
+ knitr::include_graphics(
+"figures/M4A/m4a-cdna-cornell-caredx-plot-1.png",dpi=50)
+
+```
+
+`r CAPTION = "CareDx vs Cornell Values - PVAN cDNAs"`
+
+
+```{r index-m4a-pvan-cdna-cornell-caredx-plot-1, fig.cap=CAPTION,echo=F, fig.height=6, fig.width=11}
+
+ knitr::include_graphics(
+"figures/M4A/m4a-pvan-cdna-cornell-caredx-plot-1.png",dpi=50)
+
+```
+
+<br/>
+<br/>
+

@@ -1,0 +1,72 @@
+
+from http://stackoverflow.com/questions/9776020/recursive-search-and-replace-in-text-files-on-mac-and-linux
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%agrement%agreement% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%agrement%agreement% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%html_document2%html_document% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%RDS%RSD% {} +
+
+find . -type f -name '*.html' -exec sed -i '' s%fc@bluestargenomics.com%% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%https://r.bsg-analysis.com/bsg-analysis/fcollin%https://us-east-serverlesswebsite-monty12379.s3.amazonaws.com/Projects% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%bsg%web% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%BSG%WEB% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%ext-analysis%extAnalysis% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%Francois/BlueStar/bsg-analysis/fcollin%Projects% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%Macbeth%% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%fc@bluestargenomics.com%Macbeth% {} +
+
+# That doesn work!
+find . -type f -name '*.Rmd' -exec sed -i '' s%2019.25.HCC%HCC% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%BloodCancerNonCancer%PlasmaCancerNonCancer% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%Run%SeqID% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%BloodAll%BreastLungColoPDAC% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%html_document2%html_document% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%diseaseTT%Outcome% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%UChicagoBlood%BreastLungColoPDAC5hmC% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%MTBreast1%PdacAnalysis2% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%ageMatchedSet1%PdacAnalysis% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%BreastManual%PDACManual% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%BreastAuto%PDACAuto% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%BreastStudyAuto%PDACStudyAuto% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%html_document2%html_document% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%PDAC Longitudinal Study%MT_Breast Cancer Auto extraction% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%pROC::roc\(Test.Label.vec,%pROC::roc\(Test.Label.vec==\"Cancer\",% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%pROC::roc\(Train.Label.vec,%pROC::roc\(Train.Label.vec==\"Cancer\",% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%warning=F}%warning=F,message=F}% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%results=\"hide\"}%results=\"hide\",warning=F}% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%include=F}%include=F,results=\"hide\"}% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%Individumed%Indivumed% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%CRC.bib%bibFile.bib% {} +
+
+#find . -type f -name '*.r' -exec sed -i '' s%CN2ACDv1%CN2ACDE% {} +
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%Indivudumed%Indivumed% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%Seq76%Seq77% {} +
+# AND THIS
+find . -type f -name '*.r' -exec sed -i '' s%NGS76%NGS77% {} +
+find . -type f -name '*.r' -exec sed -i '' s%Seq76%Seq77% {} +
+
+
+find . -type f -name '*.r' -exec sed -i '' s%CN2A%CN2AD% {} +
+
+
+find . -type f -name '*.Rmd' -exec sed -i '' s%NGS16%NGS76g% {} +
+find . -type f -name '*.Rmd' -exec sed -i '' s%Seq16%Seq33% {} +
+# AND THIS
+find . -type f -name '*.r' -exec sed -i '' s%NGS16%NGS76g% {} +
+find . -type f -name '*.r' -exec sed -i '' s%Seq16%Seq33% {} +
+

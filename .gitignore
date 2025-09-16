@@ -1,0 +1,32 @@
+*site_libs*
+Archive*
+wget*
+wget*.*
+t.txt
+t
+tr
+ty
+tmp.*
+r
+## DO NOT IGNORE RData - contains simulations that take a long time to run
+# DO ignore large objects
+#RData
+tmp.log
+Data
+extData
+cache
+.Rproj.user
+.Rhistory
+#.RData
+_publish.R
+#_book
+#_bookdown_files
+rsconnect
+R.cmds
+git.cmds
+##ignore this if the boodown workflow is used
+###docs  - don't ingnore this if the boo
+.DS_Store
+###/Static - we need these
+Refs
+.netlify

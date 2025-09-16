@@ -1,0 +1,158 @@
+/* Professional Development Plan CSS - Clean Version */
+/* Base document styling */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+}
+
+/* Headings */
+h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eaecef;
+  color: #24292e;
+}
+
+h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 25px;
+  margin-bottom: 16px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eaecef;
+  color: #24292e;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 12px;
+  color: #24292e;
+}
+
+h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: #24292e;
+}
+
+/* Table of Contents */
+#table-of-contents {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 30px;
+}
+
+/* Links */
+a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Lists */
+ul, ol {
+  padding-left: 25px;
+  margin-bottom: 16px;
+}
+
+li {
+  margin-bottom: 6px;
+  display: list-item;
+}
+
+/* Fix for TOC lists */
+ol {
+  list-style: decimal;
+}
+
+ol ol {
+  list-style: lower-alpha;
+}
+
+ol ol ol {
+  list-style: lower-roman;
+}
+
+/* Bold text */
+strong {
+  font-weight: 600;
+  color: #24292e;
+}
+
+/* Horizontal rule */
+hr {
+  height: 1px;
+  background-color: #e1e4e8;
+  border: none;
+  margin: 30px 0;
+}
+
+/* Para spacing */
+p {
+  margin-bottom: 16px;
+}
+
+/* Format/Objective/Activities styling */
+p strong:first-child {
+  display: inline-block;
+  width: 120px;
+  vertical-align: top;
+}
+
+p strong:first-child + br {
+  display: none;
+}
+
+p strong:first-child ~ br {
+  display: none;
+}
+
+/* The text after the strong tag */
+p strong:first-child ~ text,
+p strong:first-child + text {
+  display: inline-block;
+  vertical-align: top;
+  width: calc(100% - 125px);
+  margin-left: 5px;
+}
+
+/* Add space after sections */
+h2 + p, h3 + p {
+  margin-top: 10px;
+}
+
+/* Activity lists */
+p + ul, 
+strong + ul {
+  margin-top: 5px;
+  margin-left: 120px;
+}
+
+/* Special styling for the "Activities:" sections to align lists properly */
+p:has(strong:contains("Activities")) + ul {
+  margin-top: -10px;
+  margin-left: 120px;
+}
+
+/* Make content use more of the available width */
+@media (min-width: 1200px) {
+  body {
+    max-width: 1200px;
+  }
+}

@@ -1,0 +1,216 @@
+/* Professional Development Plan CSS - Updated */
+/* Base document styling */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  max-width: 1000px; /* Increased width from 800px */
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+}
+
+/* Headings */
+h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eaecef;
+  color: #24292e;
+}
+
+h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 25px;
+  margin-bottom: 16px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eaecef;
+  color: #24292e;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 12px;
+  color: #24292e;
+}
+
+h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: #24292e;
+}
+
+/* Table of Contents */
+#table-of-contents {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 30px;
+}
+
+/* Links */
+a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Lists - fixed to keep numbers on same line */
+ul, ol {
+  padding-left: 25px;
+  margin-bottom: 16px;
+}
+
+li {
+  margin-bottom: 6px;
+  display: list-item; /* Ensures proper list display */
+}
+
+/* Fix for TOC lists - use standard list numbering */
+ol {
+  list-style: decimal;
+}
+
+ol ol {
+  list-style: lower-alpha;
+}
+
+ol ol ol {
+  list-style: lower-roman;
+}
+
+/* Bold text */
+strong {
+  font-weight: 600;
+}
+
+/* Horizontal rule */
+hr {
+  height: 1px;
+  background-color: #e1e4e8;
+  border: none;
+  margin: 30px 0;
+}
+
+/* Para spacing */
+p {
+  margin-bottom: 16px;
+}
+
+/* Activity formatting - for the Format, Objective, Activities pattern */
+.activity-label {
+  font-weight: 600;
+  color: #24292e;
+  display: inline-block;
+  min-width: 120px;
+  vertical-align: top;
+}
+
+.activity-content {
+  display: inline-block;
+  vertical-align: top;
+  max-width: calc(100% - 125px);
+}
+
+/* Fix for Format/Objective/Activities sections */
+p.activity-section {
+  margin-bottom: 8px;
+}
+
+/* Definition list styling - fixed to keep terms and definitions on same line */
+dl {
+  margin-bottom: 16px;
+}
+
+dt {
+  font-weight: 600;
+  color: #24292e;
+  float: left;
+  clear: left;
+  width: 120px;
+  margin-bottom: 5px;
+  padding-right: 10px;
+}
+
+dt::after {
+  content: ":";
+}
+
+dd {
+  margin-left: 130px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+}
+
+/* Style for lists within definition descriptions */
+dd ul, dd ol {
+  margin-top: 5px;
+  margin-left: 0;
+  padding-left: 20px;
+}
+
+dd ul li, dd ol li {
+  margin-bottom: 3px;
+}
+
+/* Clear floats after each definition group */
+dl::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Add space after sections */
+h2 + p, h3 + p {
+  margin-top: 10px;
+}
+
+/* Make content use more of the available width */
+@media (min-width: 1200px) {
+  body {
+    max-width: 1200px; /* Even wider on large screens */
+  }
+}
+
+/* Special fix for possible Markdown constructs */
+strong + br + text,
+p strong:first-child {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+/* Activity section lists */
+.activity-list {
+  margin-top: 5px;
+  margin-left: 20px;  
+}
+
+/* Alternative approach for Format/Objective/Activities pattern */
+table.activity-table {
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+table.activity-table td:first-child {
+  font-weight: 600;
+  color: #24292e;
+  width: 120px;
+  vertical-align: top;
+  padding: 5px 10px 5px 0;
+}
+
+table.activity-table td:last-child {
+  vertical-align: top;
+  padding: 5px 0;
+}

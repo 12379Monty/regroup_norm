@@ -1,0 +1,28 @@
+
+
+processing file: _GN4GD_analysis.Rmd
+1/23                      
+2/23 [sidenote]           
+3/23                      
+4/23 [setup]              
+5/23                      
+6/23 [gn4gd-GlobalOptions]
+7/23                      
+8/23 [gn4gd-Prelims]      
+9/23                      
+10/23 [gn4gd-yeast-oorg]   
+11/23                      
+12/23 [unnamed-chunk-1]    
+13/23                      
+14/23 [gn4gd-fig1]         
+15/23                      
+16/23 [gn4gd-read-lee]     
+17/23                      
+18/23 [gn4gd-load-lee]     
+19/23                      
+20/23 [unnamed-chunk-2]    
+output file: _GN4GD_analysis.knit.md
+
+/usr/local/bin/pandoc +RTS -K512m -RTS _GN4GD_analysis.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output _GN4GD_analysis.html --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/table-classes.lua --embed-resources --standalone --variable bs3=TRUE --section-divs --template /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --number-sections --include-before-body /var/folders/jk/d24lm6n944q5y650lph85m7w0000gp/T//RtmpzrWoSc/rmarkdown-str4b76151f73b8.html --variable navbar=1 --variable theme=bootstrap --mathjax --variable 'mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --include-in-header /var/folders/jk/d24lm6n944q5y650lph85m7w0000gp/T//RtmpzrWoSc/rmarkdown-str4b7643e63fdd.html --variable code_folding=hide --variable source_embed=_GN4GD_analysis.Rmd --include-after-body /var/folders/jk/d24lm6n944q5y650lph85m7w0000gp/T//RtmpzrWoSc/file4b76416ae8fe.html --variable code_menu=1 --citeproc 
+
+Output created: _GN4GD_analysis.html

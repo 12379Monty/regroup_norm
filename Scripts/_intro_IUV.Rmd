@@ -1,0 +1,878 @@
+---
+title:  "Identification of Unwanted Variability: Introduction"
+#subtitle: ""
+author: "[Francois Collin](https://www.linkedin.com/in/francoisz/)"
+#date: '`r format(Sys.time(), "%a %b %d", tz="America/Los_Angeles")`'
+always_allow_html: yes
+output:
+  html_document:
+    code_folding: hide
+    code_download: true
+    toc: true
+    toc_depth: 2
+    # does this have an effect
+    fig_captiot: yes
+    # this has no effect
+    number_sections: yes
+    # css: ['../_css/pandoc3.css', '../_css/myMargins.css']
+bibliography: [../../../_bibFiles/_Normalization.bib, ../../../_bibFiles/_RUV.bib]
+csl: ../../../_csl/cell-numeric.csl
+link-citations: true
+---
+
+`r DT_TABLES <- F`
+
+```{css sidenote, echo = FALSE}
+
+.main-container {
+    margin-left: 250px;
+}
+.sidenote, .marginnote { 
+  float: right;
+  clear: right;
+  margin-right: -40%;
+  width: 37%;         # best between 50% and 60%
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 1.1rem;
+  line-height: 1.3;
+  vertical-align: baseline;
+  position: relative;
+  }
+```
+
+
+<style>
+@import url('https://fonts.googleapis.com/css?family=Raleway');
+@import url('https://fonts.googleapis.com/css?family=Oxygen');
+@import url('https://fonts.googleapis.com/css?family=Raleway:bold');
+@import url('https://fonts.googleapis.com/css?family=Oxygen:bold');
+
+.main-container {
+  max-width: 1400px !important;
+}
+
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+h1,h2,h3,h4 {
+  font-family: 'Raleway', sans-serif;
+}
+
+.container { width: 1400px; }
+
+caption {
+  font-size: 20px;
+  caption-side: top;
+  text-indent: 30px;
+  background-color: lightgrey;
+  color: black;
+  margin-top: 5px;
+}
+
+g-table-intro h4 {
+  text-indent: 0px;
+}
+</style>
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      comment = NA,
+                      warning = FALSE,
+                      error = FALSE,
+                      message = FALSE,
+                      cache = FALSE,
+                      fig.width = 8,
+                      fig.height = 4)
+```
+
+```{r m4a-GlobalOptions, results="hide", include=FALSE, cache=FALSE}
+
+knitr::opts_knit$set(stop_on_error = 2L) #really make it stop
+options(knitr.table.format = 'html')
+
+options(stringsAsFactors=F)
+
+ #knitr::dep_auto()
+
+```
+<!-- ######################################################################## -->
+
+
+```{r m4a-Prelims,  include=FALSE, echo=FALSE, results='hide', message=FALSE} 
+
+FN <- "_intro_IUV"
+if(sum(grepl(FN, list.files()))==0) stop("Check FN")
+
+ suppressMessages(require(rmarkdown))
+ suppressMessages(require(knitr))
+
+ suppressPackageStartupMessages(require(methods))
+ suppressPackageStartupMessages(require(bookdown))
+
+ suppressPackageStartupMessages(require(data.table))
+ options(datatable.fread.datatable=F)
+
+ suppressPackageStartupMessages(require(plyr))
+ suppressPackageStartupMessages(require(dplyr))
+ suppressPackageStartupMessages(require(magrittr))
+
+ # Shotcuts for knitting and rendering while in R session (Invoke interactive R from R/Scripts folder)
+ kk <- function(n='') knitr::knit2html(paste("t", n, sep=''), envir=globalenv(),
+       output=paste(FN,".html", sep=''))
+
+ rr <- function(n='') rmarkdown::render(paste("t", n, sep=''), envir=globalenv(),
+       output_file=paste(FN,".html", sep='')) ##, output_dir='Scripts')
+
+ bb <- function(n='') browseURL(paste(FN,".html", sep=''))
+
+ # The usual shortcuts
+ zz <- function(n='') source(paste("t", n, sep=''))
+
+
+ WRKDIR <- '..'
+ if(!file.exists(WRKDIR)) stop("WRKDIR ERROR", WRKDIR)
+
+ # do once
+
+ # Shotcuts for knitting and rendering while in R session
+ kk <- function(n='') knitr::knit2html(paste("t", n, sep=''), envir=globalenv(),
+       output=paste('',FN,".html", sep=''))
+
+ rr <- function(n='') render(paste("t", n, sep=''), envir=globalenv(),
+       output_file=paste(FN,".html", sep=''), output_dir='Scripts')
+
+ bb <- function(n='') browseURL(paste('',FN,".html", sep=''))
+
+ # The usual shorcuts
+ zz <- function(n='') source(paste('', "t", n, sep=''))
+
+ # file rmarkdown file management options: cache, figures
+ cache_DIR <- file.path(WRKDIR,'Scripts', 'cache/M4A/')
+ suppressMessages(dir.create(cache_DIR, recursive=T))
+ opts_chunk$set(cache.path=cache_DIR)
+
+ figures_DIR <- file.path(WRKDIR,'Scripts', 'figures/')
+ suppressMessages(dir.create(figures_DIR, recursive=T))
+ opts_chunk$set(fig.path=figures_DIR)
+
+ #tables_DIR <- file.path(WRKDIR,'Scripts', 'tables/')
+ #suppressMessages(dir.create(table_DIR, recursive=T))
+ #opts_chunk$set(fig.path=table_DIR)
+ 
+ # need a local copy of help_DIR
+ #help_DIR <- file.path(WRKDIR,'Scripts', 'help_files')
+ help_DIR <- file.path('.', 'help_files')
+ suppressMessages(dir.create(help_DIR, recursive=T))
+ 
+ temp_DIR <- file.path(WRKDIR,'Scripts', 'temp_files')
+ suppressMessages(dir.create(temp_DIR, recursive=T))
+
+```
+<!-- ######################################################################## -->
+
+*** 
+
+```{r m4a-utilityFns, echo=FALSE}
+ # Here we define some utility functions
+source('r/utilityFns.r')
+
+```
+
+<!-- ######################################################################## -->
+
+
+<!-- SKIP THIS 
+# Params {#params}
+
+## Input params {-}
+-->
+
+```{r m4a-input-params-all, echo = FALSE, results = "asis", eval=F, echo=F}
+ # print out original input params
+data.frame(
+param_name=names(params),
+param_value=unlist(params),
+param_class=sapply(params, class), row.names=NULL) %>%
+  knitr::kable(caption="Input Parameters")
+```
+
+<br/>
+
+<!-- DNA
+# Preliminaries {-}
+ 
+## Read Support Data {-} 
+-->
+# To Do
+
+* Examples from Molania et al. (2023)  [@Molania:2023aa]
+* Read & review: 
+   - Yu:2024 [@Yu:2024aa]
+   - Bhuva:2024 [@Bhuva:2024aa]
+   - Salim:2022 [@Salim:2022aa]
+   - Kim:2021 [@Kim:2021aa]
+
+<br/>
+<br/>
+
+# Introduction  {#intro}
+
+Over the past 15-20 years, methods of normalization 
+ for omic data have evolved substantially.
+All high-throughput omic systems - be it metabolics, proteomics, 
+genomics or methylomics - by virtue of their parallel processing nature, 
+are subject to the effects of shared technical variability
+among output measurements, and that variability can interfere with the
+variability of primary interest^[The variability of
+primary interest is usually the biology being analyzed,
+but it doesn't have to be.  In process monitoring,
+for example, the variability of primary interest may
+be some technical source of variability.].  
+
+<!--
+By reviewing the literature we learn the  
+language used to discuss all aspects of variability
+and become familiar with  
+  the normalization techniques used in RNA-Seq, 
+  the methods used to evaluate and rank them, and
+  how "success" is determined provide useful models
+for developing similar techniques in other omic platforms.
+-->
+
+<br/>
+<br/>
+
+# Normalization in RNA-Seq - Review
+
+
+<p><p/>
+* Normalization has different meanings in different contexts.  Here we can say that normalization is
+*a transformation applied to data produced in a highly parallel system with the objective
+of removing technical sources of variability*
+   - See slides
+[Normalization of omic data after 2007 (INCOB2014)](https://incob.apbionet.org/incob14/assets/INCOB2014/Terry-SpeedInCoB2014.pdf) 
+for more detail. 
+   - Although not called out explicitly, "normalization" is assumed to apply to between sample or between
+group comparisons
+
+<p><p/>
+* Initially datasets  were small, and the samples processed expertly by
+the best tech in the lab so that there was no indication for the need
+for normalization with RNA-Seq data [@Wang:2009aa; @Cloonan:2008aa].
+
+* It didn't take long for datasets to grow in size and for researchers
+to realize that differences in library sizes were a source
+of technical variability which had to be dealt with before
+biological conclusions could be drawn.  The first generation
+normalizations were a global scaling normalization based on the total
+number of reads per sample [@Robinson:2008aa;@Marioni:2008aa;@Mortazavi:2008aa].
+
+<p><p/>
+* The global scaling normalization soon became disfavored by most as it
+was realized that global scaling could potentially remove biological
+variability, as in the case when a few very highly expressed genes were 
+differentially expressed across groups.   This led to the use
+of scaling factors reflecting differences in the bulk of the data and not
+affected by a small set of highly expressed differentially expressed genes 
+[@Robinson:2010aa;  @Love:2014aa].
+   - As a side note, the scaling just described are not used
+to scale the counts to be used for downstream analysis.  They are
+used instead as part of the model which describes the expected variability
+of the unadjusted counts.  
+
+<p><p/>
+*  The scaling factor normalizations just described are part of the
+analysis workflow of two R packages which are still in common use today:
+EdgeR [@Robinson:2010ab]   and DESeq2 [@Love:2014aa].
+
+
+<p><p/>
+* Other normalization methods came along to deal with special (or not so
+special) circumstances; GC content normalization, for example [@Risso:2011aa]). 
+
+<p><p/>
+* A problem still remains as up to this point there was no way
+to handle complications created when the estimated normalization
+factors were confounded with the biology of interest.
+   - RUV was first introduced in Risso et.al (2014 [@Risso:2014aa]
+to enable normalization in spite of confounding by making use of control
+genes or control samples.
+   - Jacob et al. (2016) [@Jacob:2016aa] extend  RUV to the case when neither
+the source of unwanted variability nor the biology of interest in known
+(subclass discovery is an application in which this can occur, for example). 
+   - A visualization technique for RUV is presented in
+Gandolfo et al. (2018) [@Gandolfo:2018aa].
+   - A variation of RUV, called RUV-III, which makes vital 
+use of technical replicates and suitable control genes is presented in
+Molanina et.al. (2019) [@Molania:2019aa].
+   -  The latest innovation, RUV PRPS  ( pseudo-replicates of pseudo-samples )
+introduced in Molania et al. (2023) [@Molania:2023aa], results  in a
+normalization procedure with general applicability.  The method is illustrated
+with data from The Cancer Genome Atlas (TCGA) in which several sources of 
+unwanted variation are identified and demonstrated to significantly 
+compromise various downstream analyses, including cancer subtype identification,
+association between gene expression and survival outcomes and gene co-expression analysis.
+      - Some examples are illustrated in the appendix, Section \@ref(ruv-prps-ex).
+
+<!--
+<p><p/>
+* Most of the RUV methodology described in the above mentioned articles
+make up a useful set of tools for effectively dealing with unwanted variability
+with little in terms of theory guiding the usage of various techniques.  
+-->
+
+<p><p/>
+* Building on the formulation  of Wang et al. (2017) [@Wang:2017aa],
+Gerard et. al. developed a general framework, RUV*, 
+that encompasses all versions of RUV  (Gerard et. al. (2020, 2021) [@Gerard:2020aa;@Gerard:2021aa].
+This framework is described below.
+
+<p><p/>
+* Jiang, Gagnon-Bartysch and Speed (2023) [@Jiang:2023aa]  present some asymptotic theory for
+RUV-III. 
+
+<p><p/>
+* What is the asymototic theory used for?
+
+<br/>
+<br/>
+
+
+
+# RUV vs Pipeline QC
+
+* QC of pipelines is often at the sample level.
+
+<p><p/>
+* In Pipeline QC we are not so much interested in removing unwanted variability
+as we are in identifying unwanted variability.
+   - RUV methods can identify sources of variability through factor analysis.
+
+<p><p/>
+* If we can define regions of methylation which are meaningful, these regions
+can take the role played by genes in RNA-Seq, and the RUV methodology
+could be used almost as is.
+   - The driving force behind these methods is that when a large
+number of features share just an infinitesimal of variability, this effect can
+often be readily detected by projecting on subspaces of high variability.
+      - shared variability is the hallmark of omic data.
+
+<br/>
+<br/>
+
+# RUV* 
+
+Buildings on the formulation  of Wang et al. (2017) [@Wang:2017aa],
+Gerard et. al. developed a genereal framework, RUV*,
+that encompasses all versions of RUV  (Gerard et. al. (2020, 2021)
+[@Gerard:2020aa;@Gerard:2021aa].  This framework is described in this section.
+
+> Initial example:    
+>
+> *  took 20 samples from an RNA-seq data set (GTEx Consortium (2015)),
+> and randomly assigned them into two groups of 10 samples and did
+> a gene by gene t-test.
+> 
+> *  distribution of p-values from two-sample t-tests for three different randomizations 
+differs greatly from the theoretical uniform distribution.
+
+
+<br/>
+<br/>
+
+## RUV4 and RUV2 {-}
+
+We review the two-step rotation method.  Most approaches to this problem in some
+way factor in factor analysis to capture unwanted variation.
+
+<!--  In a high dimentional,
+heavily correlated setting, this is the obvious thing to do.  
+-->
+Assume 
+
+
+\begin{equation}
+
+\mathbf{Y}_{n \times p } = \mathbf{X}_{n \times k} \beta_{k \times p} +
+                           \mathbf{Z}_{n \times q} \alpha_{q \times p} +
+                           \mathbf{E}_{n \times p} 
+
+(\#eq:ruv-model)
+\end{equation}
+
+
+where **Y** is the matrix of properly pre-processed
+features, one column per feature and one row per sample, 
+**X** contains the observed covariates (which could include both wanted and, 
+unwanted sources of variability),
+$\beta$ contains the coefficients for covariates coded in **X**,
+**Z** is a matrix of unobserved factors (sources of unwanted variation), 
+$\alpha$ contains the coefficients for covariates coded in **Z**,
+and **E** contains independent (Gaussian) errors with means zero and
+column-specific variances $var(\epsilon_{ij} = \sigma_j^2)$. 
+In this model, the only known quantities are **Y** and **X**.
+
+To fit \@ref(eq:ruv-model) it is comoin to use a two-step approach
+[@Gagnon-Bartsch:2013aa;@Sun:2012aa;@Wang:2017aa]:
+
+* Rotation: Regress out **X**, then using the residuals estimate $\mathbf{\alpha}$ and
+$\sigma_i$.
+
+* Estimation: Assume  $\mathbf{\alpha}$ and $\sigma_i$ are known and
+estimate $\beta$ and **Z**.
+
+***
+
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbf{Q}}
+\newcommand{\Z}{\mathbf{Z}}
+\newcommand{\E}{\mathbf{E}}
+\newcommand{\X}{\mathbf{X}}
+\newcommand{\Y}{\mathbf{Y}}
+
+<p><p/>
+*  Let **X** = **QR** denote the QR decomposition of **X**:
+   -  $\Q \in \R^{n \times n}$, 
+   - Orthogonal: $\Q^\intercal\Q = \Q\Q^\intercal = I_n$
+   - and $\mathbf{R}_{n\times k} = (\mathbf{R}_1^\intercal, 0)^\intercal$
+where $\mathbf{R}_1 \in \R^{k \times k}$ is an upper-tiangular matrix.
+
+Multiplying \@ref(eq:ruv-model) on the left by $\Q^\intercal$ yields:
+
+$$\Q^\intercal \Y = \mathbf{R} \beta + \Q^\intercal \Z \mathbf{\alpha} +  \Q^\intercal\E$$
+
+
+Suppose $k = k_1 + k_2$ where the first $k_1$  covariates of X are not of direct interest
+and the last $k_2$ are variables of interest.  
+
+Let $\Y_1 \in \R^{k_1 \times p}$ be the first $k_1$ rows of $\Q^\intercal\Y$,
+$\Y_2 \in \R^{k_2 \times p}$ be the next $k_2$ rows and
+$\Y_3 \in \R^{n-k \times p}$ be the last $n-k$ rows.
+
+Conformably partition $\Q^\intercal\Z$ into $\Z_1$, $\Z_2$ and $\Z_3$,
+and $\Q^\intercal\E$ into $\E_1$, $\E_2$ and $\E_3$.  Let
+
+$$\mathbf{R}_1 = 
+\begin{pmatrix}
+  \mathbf{R}_{11} & \mathbf{R}_{12} \\ 
+  \mathbf{R}_{21} & \mathbf{R}_{22} 
+\end{pmatrix}
+$$
+
+Finally write $\beta = (\beta_1^\intercal, \beta_2^\intercal)^\intercal$.  Then
+\@ref(eq:ruv-model) can be expressed as three models:
+
+
+
+\begin{equation}
+  
+\Y_1 =  \mathbf{R}_{11} \beta_1 +  \mathbf{R}_{12} \beta_2
+   + \Z_1\mathbf{\alpha} + \E_1
+
+(\#eq:ruv-model-1)
+\end{equation}
+
+
+
+\begin{equation}
+  
+\Y_2 =  \mathbf{R}_{22} \beta_2 + \Z_2\mathbf{\alpha} + \E_2
+
+(\#eq:ruv-model-2)
+\end{equation}
+
+
+
+\begin{equation}
+  
+\Y_3 =  \Z_3\mathbf{\alpha} + \E_3
+
+(\#eq:ruv-model-3)
+\end{equation}
+
+
+Importantly, the error terms in 
+\@ref(eq:ruv-model-1),
+\@ref(eq:ruv-model-2) and 
+\@ref(eq:ruv-model-3)
+are mutually independent. 
+
+The new two-step procedure is:
+
+* using negative control features,
+estimate $\mathbf{\alpha}$ and $\sigma_j$ using \@ref(eq:ruv-model-3),
+by factor analysis for example.
+
+* estimate $\beta_2$ and $\Z_2$, given  $\mathbf{\alpha}$ and $\sigma_j$ using
+\@ref(eq:ruv-model-2).
+
+Equation \@ref(eq:ruv-model-1) contains the nuisance parameters  $\beta_1$
+and is ignored.
+
+
+
+<br/>
+<br/>
+
+## RUV4    {-}
+
+
+One approach to distinguishing between unwanted variation and effects
+of interest is to use “control genes” (Carvalho et al. (2008) [@Carvalho:2008aa];
+Gagnon-Bartsch and Speed (2012)) [@Gagnon-Bartsch:2012ab]. 
+A control gene is assumed a priori to be unassociated with the covariate(s) of interest.
+
+
+In the Discussion section of 
+[Gagnon-Bartsch and Speed (2012)](https://academic.oup.com/biostatistics/article/13/3/539/248166):
+
+>
+> There may be a temptation to “discover” negative control genes.
+> For example, a researcher may wish to find genes whose expression levels 
+> are not highly correlated with the factor of interest, label these genes 
+> as negative controls, and then adjust via RUV-2. The allure of this 
+> approach is clear—finding a set of negative controls would be much easier 
+> and could in fact be automated. However, we feel this approach is 
+> misguided. If there are unwanted factors that are correlated with the 
+> factor of interest, then the expression levels of the true negative controls 
+> should in fact be correlated with the factor of interest. Excluding genes 
+> correlated with the factor of interest would bias our estimate of the unwanted factors.
+>
+
+Also see [online supplement](https://oup.silverchair-cdn.com/oup/backfile/Content_public/Journal/biostatistics/13/3/10.1093_biostatistics_kxr034/1/kxr034_Supplementary_Data.zip?Expires=1728508387&Signature=h3LsSBp9V5XFw09HV4Gi6Wia7XGpvnWy2C9AsG3xX2DQc1jNArX5tm8lhcudOotZE2LTPQa5bTU3ge43yLIOq7g6tiUFohvLmnJjegdY-WMiT9lqZO00em7~v19UWlA0K8wePRxQL26vOBlF2gBVUh2Do~V-rgnwWcI-t2lrQ1lglzNSgzxQC~hHp-GXHpps6ylegalQZoAdaPF3KAeyHm3kAILKVt15PV~0IMK35cpGPjWM6ZmMNQBiwM1LyvI5a0AHRa-UjNocyxLTz1z2bhUzCQOwcitlfiS5mR8dWLpD76hVs1X0nv71IsnYGr-AmPi7a7k4fB8-DqLhGROF3A__&Key-Pair-Id=APKAIE5G5CRDK6RD3PGA)
+
+
+
+
+<br/>
+<br/>
+
+# Appendix 
+
+## The vocabulary of variability {-} 
+
+**IN PROGRESS**
+
+We seek to discuss variability in data in terms of its nature and its role in data analysis.
+
+<p><p/>
+* **variability**: we repeat a measurement or observation process and potentially get different results - that's variability
+* We can describe variability as:
+   - **systematic** or **random** (stochastic)
+      - "random" - in a data model, any variability not captured by the systematic component gets combined  with the random component.
+      - Also, in practice the selected model often acts as the determinant of the random component - randomness is whatever the model tells us it is - ie. the difference between the observed values and those predicted by the systematic component of the model.
+         - in some cases the model might be an accurate depiction of the data generating process, but that should be demonstrated rather than assumed.
+* **wanted** or **unwanted**
+   - the "wanted" variability is typically the sole reason for carrying out a study.  It represents variability in a set of measurement in the space that we want to make inference to, typically a future state
+   - the purpose of a QC study is not so much about characterizing the current state of reagents or instruments  as being about predicting or making inference about the performance of the reagents or instruments in future runs, 
+   - in order to capture variability, replication of the right sort is necessary
+* **known** or **unknown**
+   - unknown here means that extra variability is observed, but we cannot pin point the source
+   - there's a subtle difference with **systematic** or **random** (stochastic) which speak to bias vs variance
+* **between sample or group** vs **within sample or group** 
+   - in studies which aim at characterizing between group variability in a particular outcome, between
+group variability may be present in other outcome metrics, which could be combined to produce an alternate
+outcome, or in sample characteristics, which could be summarized to provide study group descriptions.
+   - if the within group variability is driven by a factor which produces highly correlated outcomes
+between groups, removing this effect from thee between group comparison can greatly diminish the variability
+in the assessed outcome group effect.
+
+***
+   
+
+<br/>
+<br/>
+
+
+# References {#references}
+<div id="refs"></div>
+    
+<br/> 
+
+```{r , echo=FALSE}
+  knit_exit()
+```
+
+```{r , eval=T}
+pander::pander(sessionInfo())
+```
+
+  * WRKDIR = `r normalizePath(WRKDIR)`
+  * FN = `r FN`
+  * Scripts = Scripts
+  * RUN DATE = `r date()`
+
+
+############################################################
+## ARCHIVED CODE BELOW {-}
+############################################################
+
+
+<br/>
+
+## Unwanted Variation in Methylation Data
+
+### Jaffe et. al. (2012) [@Jaffe:2012aa] {-}
+
+<p><p/>
+* Genome-wide DNA methylation measurements are characterized by:
+   - continuous rather than categorical measurements
+   - the batch effects that come with large studies measured 
+throughout long periods of time
+   - both biological signal and measurement errors are characterized
+by spatial correlation along the genome
+
+<p><p/>
+* Present a data analysis pipeline that effectively models
+measurement error by taking correlations into account, and removes batch effects
+
+* As a result, regions of interest are accurately identified with proper statistical uncertainty
+attached.
+
+* A well-characterized population of newborns provides truth for performance assessment
+   - It can be shown that  when unwanted vriability due to batch effects
+is accounted for - in this case, de-coupled from *** - 
+the number of false positive regions is reduced.
+
+    
+<br/>
+<br/> 
+    
+### HERE
+
+###  Jaffe et. al. (2014)  [@Jaffe:2014aa] {-}
+    
+* findings underscore the importance of considering cell composition variability in epigenetic studies based on whole blood and other heterogeneous tissue sources.
+
+* also provide software for estimating and exploring the cell composition confounding for the
+Illumina 450k microarray.
+
+
+<br/>
+<br/>
+
+### Maksimovic et al. (2015) [@Maksimovic:2015aa]   {-}
+
+* Demonstration of the use of RUV-inverse to remove unwanted variability in
+Illumina 450k methylation array data.
+
+<p><p/>
+* Based on RUV methodology described in
+Gagnon-Bartsch et al. (2012, 2013) 
+[@Gagnon-Bartsch:2012ab;@Gagnon-Bartsch:2013aa]
+   - exploits negative control features estimate
+the technical variability.
+   - contains useful examples on how to construct a
+reliable evaluation dataset.
+
+<p><p/>
+* 3 Data sets with built-in truth are exploited for
+illustrative purposes
+   - Ageing data
+      - Test Sets:  
+         - Study 1: birth vs 18 months for 30 individuals
+         - Study 2: birth vs 12 months for 48 individuals
+         - Study 3: birth vs 100 yo for 38 individuals
+      - Truth Set:
+         - ...
+   - Smoking Data
+   - Cancer Data
+
+<p><p/>
+* *Although there is some evidence that the CpGs in the CpG islands of housekeeping gene promoters are generally unmethylated (51), to our knowledge, there is no general list of ‘housekeeping’ CpGs for researchers to draw from that could be used as negative control features in a differential methylation analysis with RUV-inverse.*
+
+* A 2-stage approach is used to identify negative controls
+
+* Results of DM using RUV-inv are copared with other methods.
+
+* No other detail about the use of RUV-inv is reported.
+   - ie. iterations through negative control selection,
+evidence that these work, etc.  
+
+<br/>
+
+
+### Sun et al. (2012) [@Sun:2012aa]  {-}
+
+* *We evaluated three common normalization approaches and investigated their performance in batch effect removal using three datasets with different degrees of batch effects generated from HumanMethylation27 platform: quantile normalization at average β value (QNβ); two step quantile normalization at probe signals implemented in "lumi" package of R (lumi); and quantile normalization of A and B signal separately (ABnorm). Subsequent Empirical Bayes (EB) batch adjustment was also evaluated.*
+
+* 3 datasets were evaluated
+
+* In this study, a batch was defined as a set of 12 samples from the same chip (note that batch effects may not be always at chip level; based on how samples are handled, they can occur by a plate of 96 samples or a set of chips).
+
+<p><p/>
+*  We used several metrics to evaluate batch effects for each dataset: 
+   - (a) the distribution of average β values for all samples in one batch contrasting with another through a box and density plot, 
+   - (b) unsupervised hierarchical clustering of all CpGs (27,578 for Dataset 1 and 3; and 26,486 for Dataset 2) using 1 minus Pearson correlation distance matrix and average linkage, 
+   - (c) a principal components analysis (PCA) plot of the first few (2-3) principal components using all CpGs, 
+   - (d) the associations of first 10 principal components with the batch variable by Wilcoxon test at a p value < 0.01, and 
+   - (e) the proportion of CpGs significantly associated with batches by applying analysis of variance (ANOVA) test on each CpG and then counting those with a p value < 0.01 among all 27,578 CpGs (26,468 for Dataset 2 after excluding CpGs on Chr X and Y).
+
+<p><p/>
+* Used "Empirical Bayes" method of Johnson et. al. (2007)
+[@Johnson:2007aa] for batch correction.  
+   - In Johnsopn et. al. 2007 [@Johnson:2007aa]:  *There are difficulties faced
+by researchers who try to implement the SVD and DWD batch adjustment
+methods. These methods are fairly complicated and usually require
+many samples (>25) per batch to implement. For the SVD adjustment,
+the eigenvectors in the SVD are all orthogonal to each other,
+so the method is highly dependent on proper selection of first several
+eigenvectors, which makes finding the batch effect vector not
+always clear if it even exists at all. In addition,
+the SVD approach factors out all variation in the given direction,
+which may not be completely due to batch effects.*
+
+
+<br/>
+
+### Harper et.al. (2013) [@Harper:2013aa] {-}
+
+<p><p/>
+* two problems likely to confront DNA methylation microarray users: 
+   - (i) batch effects and 
+   - (ii) the use of widely available pathway analysis software to analyze results. 
+
+ 
+<br/>
+
+### Marabita et. al. (2013) [@Marabita:2013aa]  {-} 
+
+* two unpublished data sets, which included technical replicates and were profiled for DNA methylation either on peripheral blood, monocytes or muscle biopsies.
+
+<p><p/>
+* demonstrated that: 
+   - (1) it is critical to correct for the probe design type, since the amplitude of the measured methylation change depends on the underlying chemistry; 
+   - (2) the effect of different normalization schemes is mixed, and the most effective method in our hands were quantile normalization and Beta Mixture Quantile dilation (BMIQ); 
+   - (3) it is beneficial to correct for batch effects. 
+
+
+<br/>
+<br/>
+   - One thing should be clear from the outset - reduction in variability 
+alone is not sufficient to judge the value of a normalization
+procedure.  In many cases we can reduce the variability to zero.
+There will be no technical variability in this case,  but
+all other variability if gone too.
+
+### Gerard et. al. (2021) [@Gerard:2021aa] {-}
+
+*  introduce a general framework, RUV*, that
+both unites and generalizes these approaches
+
+* introduce RUVB, a version of RUV* based on Bayesian factor analysis. 
+
+* Framework for RUV analysis is based on Wang et. al. (2017)
+[@Wang:2017aa].  
+
+<br/>
+<br/>
+
+
+## The vocabulary of variability {-} 
+
+**TO BE COMPLETED**
+
+We seek to discuss variability in data in terms of its nature and its role in data analysis.
+
+<p><p/>
+* **variability**: we repeat a measurement or observation process and potentially get different results - that's variability
+* We can describe variability as:
+   - **systematic** or **random** (stochastic)
+      - "random" - in a data model, any variability not captured by the systematic component gets combined  with the random component.
+      - Also, in practice the selected model often acts as the determinant of the random component - randomness is whatever the model tells us it is - ie. the difference between the observed values and those predicted by the systematic component of the model.
+         - in some cases the model might be an accurate depiction of the data generating process, but that should be demonstrated rather than assumed.
+* **wanted** or **unwanted**
+   - the "wanted" variability is typically the sole reason for carrying out a study.  It represents variability in a set of measurement in the space that we want to make inference to, typically a future state
+   - the purpose of a QC study is not so much about characterizing the current state of reagents or instruments  as being about predicting or making inference about the performance of the reagents or instruments in furtrue runs, 
+   - in order to capture variability, replication of the right sort is necessary
+* **known** or **unknown**
+   - unknown here means that extra variability is observed, but we cannot pin point the source
+   - there's a subtle difference with **systematic** or **random** (stochastic) which speak to bias vs variance
+
+***
+   
+<!-- UNWANTED VARIATION
+* Unwanted variation is also context dependent, encompassing what are known as
+batch effects due to sample collection, duration and conditions of sample storage,
+assay details, including reagents, equipment, operators, 
+see Gerard and Stephens, 2021 [@Gerard:2021aa] for more background on this
+type of application. We can also include unwanted biological features
+in a dataset, tumor fraction for example.
+-->
+
+
+<br/>
+<br/>
+
+<p><p/>
+* In the short term, even if we don't immediately go down 
+the RUV/IUV path, we shouldn't wait to work towards extracting better 
+data for QC.
+   - counts of unmethylated  fragments, for example, are better to work
+with than the methylated ratio.  The counts could be easily  modeled.
+Ratios, less so.
+   - similarly counts of abnormal fragments would be better to work with
+than mean abnormal coverage per cpg.
+      - with the full breakdown of read counts into different bins - 
+binary, abnormal, unmapped, etc. - we may be able to find some reasonable
+models which could lead to setting reliable thresholds of expectation.  
+
+
+##  Why we suspect abnormal content is a good metric {-}
+
+^[This is not completely unrelated to the rest of this document as it is
+related to QC and variability.  The efficacy of binary coverage in removing
+some variability from Abn cov is seen in
+[Test Plate data](https://rstudio-connect.ti-apps.aws.grail.com/connect/#/apps/eec924d4-152b-4a96-aa70-f635a104c659/access)
+(2023.01/_MQC-testPlate_RTP_PostPart2.Rmd)
+and
+[NextSeq 2000 vs NovaSeq 6000 data](https://rstudio-connect.ti-apps.aws.grail.com/connect/#/apps/ed3a532f-e95f-4059-b0c6-d92dcf4deabb/access)
+(2023.01/_MUB-Next2000_Nova6000_study.Rmd)
+]
+
+* Good here means it is a reliable reporter to assess the state of the
+system as reflected in the data
+   - low variability
+      - variability is easy to see - look at replicates
+   - low bias
+      - bias is harder to obtain
+         - we can always design datasets to have zero effect
+         - the fact that we can correctly report zeroes is not
+that comforting. 
+            - what can we conclude from "we didn't find any difference?"
+            - not much - maybe we didn't look.  Rather than "we see
+no difference" we should measure the difference and establish that it  is not
+meaningful.
+
+* When we examine the test plate data,  we see a higher signal to noise
+ratios in the abnormal content than in either of the two values alone.
+
+
+`r CAPTION <-
+paste(
+"Metrics Dilutions for TP1-RTPPart 1 Level_input = L2= 2.2, L3 = 3.3 ,,,L6=6.6"
+)`
+    
+```{r m4a-rtp-example, fig.cap = CAPTION, include=T, fig.align='center', eval=F}
+
+knitr::include_graphics( "img/mqc-cov-by-extr-cons-batch-level-tp1-1.png", dpi=150)
+
+```                   
+
+<br/>
+<br/>
+
+
+<!-- To run
+# nohup Rscript -e "knitr::knit2html('_intro_IUV.Rmd')" > _intro_IUV.log  &
+
+# Or
+# nohup Rscript -e "rmarkdown::render('_intro_IUV.Rmd')" > _intro_IUV.log  &
+
+
+-->

@@ -1,6 +1,6 @@
 ---
 title: "Group Normalization for Genomic Data"
-###\nLessons from 20 years of expererience"
+subtitle: https://groupnorm.netlify.app/_gn4gd_analysis
 author: "[Francois Collin](https://www.linkedin.com/in/francoisz/) with much revised input from claude.ai 3.7"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 always_allow_html: yes
@@ -253,11 +253,6 @@ exists around gene promoters:
 
 ```
 
-## David and Huber - Biology {.tabset}
-
-### Home {-}
-
-<br/>
 
 ## Study Design { .tabset}
 
@@ -347,6 +342,15 @@ positive and negative controls.  (e.g., +1 nucleosomes at well-studied genes)
 
 <br/>
 
+## David and Huber - Biology {.tabset}
+
+* High-density oligonucleotide tiling arrays used for unbiased transcript mapping
+* Detects expressed regions without relying on existing gene annotations
+* Can identify novel transcripts, non-coding RNAs, and alternative splice variants
+* Used for mapping transcriptomes in organisms like yeast
+
+
+
 
 # Implementation Details {.tabset}
 
@@ -354,7 +358,7 @@ positive and negative controls.  (e.g., +1 nucleosomes at well-studied genes)
 
 <br/>
 
-## Workflow }
+## Workflow
 
 <p><p/>
 * **Raw Data Examination and QC** 
@@ -433,6 +437,18 @@ knitr::include_graphics("_GN4GD_analysis_figures/Figure3A.png", dpi=200)
 
 <br/>
 
+## Normalization in Huber
+
+1. DNA Reference Normalization (Their Main Method)
+
+2. Perfect Match (PM) and Mismatch (MM) Probes
+
+3. Statistical Normalization Methods
+
+
+
+<br/>
+
 ## Signal Quality Measure 
 
 * Th paper uses a **Signal Quality measure (in dB) to compare normalization methods:
@@ -448,7 +464,25 @@ knitr::include_graphics("_GN4GD_analysis_figures/Figure3A.png", dpi=200)
 
 <br/>
 
-# Data Analysis 
+# Data Analysis - Huber vs Beer ,,, TBC
+
+
+<br/>
+<br/>
+    
+
+# References {#references}
+
+<div id="refs"></div> 
+
+<br/>     
+   
+
+```{r , echo=FALSE}
+  knit_exit()
+``` 
+  
+  
 
 ## Home {-}
 

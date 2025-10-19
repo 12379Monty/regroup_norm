@@ -1,0 +1,102 @@
+# Analysis of Missing Genomic Annotations in A-AFFY-42.additional.txt
+
+## Background
+
+This document addresses the question of why many probes in the A-AFFY-42.additional.txt file (from ArrayExpress dataset E-MEXP-1172, associated with the Lee et al. 2007 yeast nucleosome occupancy study) have missing genomic location annotations.
+
+## Summary of Findings
+
+**The missing genomic locations are NOT due to data quality control after the fact, but rather by design during array manufacturing.**
+
+## How A-AFFY-42.additional.txt Was Compiled
+
+### Array Design Overview
+
+The array used in the Lee et al. study was an Affymetrix S. cerevisiae tiling array with high-density coverage, featuring 25-mer probes tiled at approximately 5-8 base pair resolution across the yeast genome.
+
+### Compilation Process
+
+1. **Source Files**: For Affymetrix tiling arrays, the primary source is the BPMAP (binary probe map) file, which contains the genomic probe position map and maps the X/Y coordinate of each probe on the array to its genomic position.
+
+2. **Curator Processing**: ArrayExpress curators convert manufacturer-supplied supporting files (like BPMAP files for Affymetrix arrays) into the standardized ADF table format, which is then appended to the metadata header to create a complete ADF.
+
+3. **Content of the File**: The ADF file describes what sequence is located at each position on an array and its annotation, including probe sequences, genomic coordinates, and cross-references to external databases.
+
+4. **Additional Information**: For tiling arrays, the BPMAP file parsing extracts information including unique probe IDs, chromosomal location, genomic start positions, X/Y coordinates on the physical array, and probe sequences.
+
+### Key Components
+
+The additional.txt file contains:
+- **Probe identifiers** and their unique positions
+- **Genomic coordinates** (chromosome, start position)
+- **Probe sequences** (25-mer oligonucleotides)
+- **Physical array coordinates** (X, Y positions)
+- **Annotation cross-references** to genome assemblies
+- **Control sequences** (such as gcBinXX sequences) and annotations for different sequence sets within the array design
+
+## Definitive Answer: Why Genomic Annotations Are Missing
+
+### The Primary Reason: Exclusion of Repetitive Sequences
+
+Tiling arrays are designed only for non-repetitive loci, which results in gaps in probe coverage. This is a fundamental design principle of Affymetrix tiling arrays.
+
+The initial BPMAP file from Affymetrix contained all probes, but the mapping of repetitive probes (around 109,000 probe pairs out of 3,018,000 probe pairs, representing approximately 3.6%) was excluded from the standard analysis files.
+
+#### Why Repetitive Sequences Are Excluded:
+
+1. **Cross-hybridization problems**: Probes that align to 100 or more loci are considered promiscuous and are stored as unmapped objects.
+
+2. **Analysis complications**: Repetitive probes map to all locations in the genome, and the time needed for calculations increases in a nonlinear fashion as the number of probes with the same sequence mapped to different locations increases.
+
+3. **Signal interpretation**: Probes within repetitive regions may be responding to multiple copies of identical DNA throughout the genome, and repetitive elements have large variations in probe signal and are removed from the reference set computation.
+
+### Additional Reasons for Missing Annotations
+
+1. **Perfect Match Requirement**: During probe mapping, alignment is performed and the resulting hits are filtered to keep only those that constitute a perfect match across the whole probe sequence, while the rest are discarded. This means probes that don't perfectly match the reference genome are left without genomic coordinates.
+
+2. **Genome Build Issues**: It's not uncommon for genomes to be updated between builds, and the chromosomal extent when Affymetrix designed the array may have been different from what is reported currently. The Lee et al. (2007) array was designed based on an earlier yeast genome assembly (sacCer1), so some probes may not map to current genome builds.
+
+### Quantitative Context
+
+From the Stanford yeast tiling array documentation:
+- Total probe pairs on array: ~3,018,000
+- Repetitive probes excluded: ~109,000 (approximately 3.6%)
+- These excluded probes would appear in the ADF without genomic coordinates
+
+## Conclusion
+
+**The missingness is intentional and represents a filtering decision made during array design and annotation compilation**, not a QC step applied to your data. 
+
+The missing annotations primarily represent:
+1. **Probes in repetitive/multi-copy genomic regions** (the vast majority of missing annotations)
+2. **Probes that don't perfectly match the reference genome**
+3. **Probes that map to sequences excluded from the standard tiling design**
+
+Users are left to decide if they feel useful information can be obtained from the repetitive probes, and some research groups create alternative BPMAP files that include these mappings, though this complicates downstream analysis significantly.
+
+## Recommendations for Analysis
+
+1. **For most analyses**: Exclude probes without genomic coordinates, as these represent repetitive regions that would confound interpretation.
+
+2. **If you need repetitive probe information**: Look for alternative BPMAP files that include full mappings (though these are rarely used due to analysis complications).
+
+3. **Consider remapping**: If working with updated genome assemblies, consider remapping probe sequences to the current genome build using tools like xMAN or similar probe remapping software.
+
+4. **Document genome build**: Always note which genome build (e.g., sacCer1, sacCer3) your analysis is based on, as this affects probe coordinate interpretation.
+
+## References
+
+### Key Papers
+- Lee, W., Tillo, D., Bray, N., Morse, R.H., Davis, R.W., Hughes, T.R., and Nislow, C. (2007). A high-resolution atlas of nucleosome occupancy in yeast. Nature Genetics 39, 1235–1244. https://doi.org/10.1038/ng2117
+- Ghandi, M., and Beer, M.A. (2012). Group normalization for genomic data. PLoS One 7, e38695.
+
+### Related Resources
+- ArrayExpress Dataset: E-MEXP-1172
+- Array Design: A-AFFY-42 (Affymetrix S. cerevisiae tiling array)
+- Stanford S288c Reference Sequence documentation: http://www-sequence.stanford.edu/s288c/bpmap.html
+- Lee et al. supplementary data: http://chemogenomics.stanford.edu/supplements/03nuc/
+
+### Technical Documentation
+- Ensembl Microarray Probe Mapping documentation
+- Affymetrix BPMAP file format specification
+- ArrayExpress ADF (Array Design Format) submission guidelines

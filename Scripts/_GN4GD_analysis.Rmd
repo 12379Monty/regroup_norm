@@ -299,7 +299,7 @@ samples differ in the amounts of targeted fragments.
 
 ### Figure 1 {-}
 
-```{r}
+```{r, echo=F}
 CAPTION <- readLines("_GN4GD_analysis_figures/Fig001.txt", warn=F)
 CAPTION <- paste(CAPTION, 
 "^[A better representation of reproducibility is provided by the
@@ -350,6 +350,7 @@ positive and negative controls.  (e.g., +1 nucleosomes at well-studied genes)
 * Used for mapping transcriptomes in organisms like yeast
 
 
+<br/>
 
 
 # Implementation Details {.tabset}
@@ -358,60 +359,107 @@ positive and negative controls.  (e.g., +1 nucleosomes at well-studied genes)
 
 <br/>
 
-## Workflow
+## Workflow {.tabset}
 
-<p><p/>
-* **Raw Data Examination and QC** 
-   - Probe intensity values across the genome
-   - Substantial probe-to-probe variation due to sequence-specific hybridization differences
-   - Biological signal (nucleosome occupancy) superimposed on these technical variations
+### Home {-}
 
+<br/>
 
-* **Analysis Steps**:
-   -  <span style="color: blue;">**Normalization**<span/>,: Correct for probe-specific effects (the focus of the Group Normalization method)
-   -  **Smoothing**: Apply running average or other smoothing techniques to reduce noise
-   -  **Peak Calling**: Identify nucleosome positions based on signal peaks
-   -  **Comparative Analysis**: Compare nucleosome positions between conditions
+### Raw Data Look and QC  {-}
 
-* **Expected Patterns**:
-   - Regular oscillations in signal intensity with a periodicity of ~165 bp (nucleosome + linker)
-   - Consistent depletion of signal at promoters (NDRs)
-   - Well-defined peaks at +1 and -1 positions
-   - More variable positioning in gene bodies and intergenic regions
+* Probe intensity values across the genome
+* Substantial probe-to-probe variation due to sequence-specific hybridization differences
+* Biological signal (nucleosome occupancy) superimposed on these technical variations
 
-* **Visualization**:
-   - Heatmaps aligned to TSSs showing nucleosome positioning across genes
-   - Average profiles showing nucleosome occupancy patterns around genomic features
-   - Gene-specific tracks showing nucleosome positions in regions of interest
+<br/>
+
+### Analysis Steps  {-}
+
+* <span style="color: blue;">**Normalization**<span/>,: Correct for probe-specific effects (the focus of the Group Normalization method)
+
+* **Smoothing**: Apply running average or other smoothing techniques to reduce noise
+
+* **Peak Calling**: Identify nucleosome positions based on signal peaks
+
+* **Comparativ Analysis**: Compare nucleosome positions between conditions
+
+<br/>
+
+###  Expected Patterns  {-}
+
+* Regular oscillations in signal intensity with a periodicity of ~165 bp (nucleosome + linker)
+* depletion of signal at promoters (NDRs)
+* Well-defined peaks at +1 and -1 positions
+* More variable positioning in gene bodies and intergenic regions
+
+<br/>
+
+### Visualization  {-}
+
+* Heatmaps aligned to TSSs showing nucleosome positioning across genes
+* Average profiles showing nucleosome occupancy patterns around genomic features
+* Gene-specific tracks showing nucleosome positions in regions of interest
 
 
 <br/>
 
-## Group Normalization {}
 
-* Group Normalization has the property that only probe intensities in the test samples
-are used so that there is no need foor a global adjustment to correct for differeces between test 
-and reference.
+## Normalization {.tabset}
 
-* The reference sample probe intensities are only used to select probes:
-   - For each probe, find N (~1000) reference probes with similar values in the reference sample.
-       - This forms a "comparable set of probes", one set for each probe.
-       - The test sample probe intensities on the comparable probe set provides a reference distribution of
-probe intensities for each test sample probe.
+### Home {-}
 
-* The so-called <span style="color: blue;">binary group normalization<span/> method Maoanconverts the probe indneities into somethhing that resembles
-a standard unit:   `normalized_value = (value - μ_low) / (μ_high - μ_low)`
+<br/>
+
+### Ghandi and Beer {-}
 
 
-* <span style="color: blue;">**Quantile-based Group Normalization**:<span/>, maps each probe
-to its rank or pecenrtile in the comparable distribution.
+* For each probe on the array, reference sample probe intensities are interrogated to form 
+a *reference probe set*: a set of N = 1000 (a parameter) probes having similar intensities 
+in the reference as the index probe.
 
-* This is very similar to local regression analysis, loess. 
+* Using the reference probe sets, a reference set of test sample probe intensities is constructed
+for each probe on the array.
+
+<p></p>
+* With the reference set of test sample probe intensities define a mean for the
+low signal probes, $\mu_{i, low}$, and a mean for the high signal probes, $\mu_{i, high}$
+   - for the nucleosome samples,  $\mu_{i, low}$ is taken to bee the 30th percentile
+and $\mu_{i, high}$ the 70th percentile of he reference set of test sample probe intensities.
+
+* If the test set probe intensity of a probe is $value$, the 
+<span style="color: blue;">**group normalized value**</span> is given 
+by the following transformation:
+
+\begin{equation}
+
+ \text{normalized value} =  \frac{value - \mu_{low}}{\mu_{high} - \mu_{low}}
+ \tag{1}
+
+\end{equation}
+
+<!--
+ \label{eq:norm-value}
+-->
+
+<p><p/>
+* Can this transformation be optimized?
+   - would think that the closer $\mu_{low}$ is to the probe effect for each probe,
+the better the correction would be 
+   - expect $\mu_{low}$ to be low variance but potentially high bias.
+   - the denominator is just a change of units and is probably not needed.
+      - the only tasks in this case is determining the presence of Nucleosom or not.
+
+
+
+<p><p/>
+* <span style="color: blue;">**Quantile-based Group Normalization**:</span>, maps each probe
+to its rank or percentile in the comparable distribution.
 
 <!--
 ### Figure 3A {-}
+-->
 
-```{r}
+```{r, echo=F}
 CAPTION <- readLines("_GN4GD_analysis_figures/Figure3A.txt", warn=F)
 ```
 
@@ -430,14 +478,14 @@ CAPTION <- readLines("_GN4GD_analysis_figures/Figure3A.txt", warn=F)
 
 ```{r gn4gd-Figure3A, fig.cap=CAPTION}
 
-knitr::include_graphics("_GN4GD_analysis_figures/Figure3A.png", dpi=200)
+knitr::include_graphics("_GN4GD_analysis_figures/Figure3A.png", dpi=125)
 
 ```
 
 
 <br/>
 
-## Normalization in Huber
+### Huber {-}
 
 1. DNA Reference Normalization (Their Main Method)
 
@@ -449,9 +497,28 @@ knitr::include_graphics("_GN4GD_analysis_figures/Figure3A.png", dpi=200)
 
 <br/>
 
-## Signal Quality Measure 
+## Assessment {.tabset}
 
-* Th paper uses a **Signal Quality measure (in dB) to compare normalization methods:
+### Home {-}
+
+
+<br/>
+
+
+###  Ghandi and Beer {-}
+
+<p><p/>
+* The performance assessment used in the paper and described below is a 2 condition/4 samples metric.
+
+<p><p/>
+* The performance assessment used in the paper and described below is a 2 condition/4 samples metric.
+* A preferable similar metric would be based on the S/N that is relevant in the within sample
+segmentation.
+- ie S/N stats computed based on contiguous and unambiguous segments.
+
+
+<p><p/>
+* The paper uses a **Signal Quality** measure (in dB) to compare normalization methods:
    - Signal (S): Mean square change between conditions at significantly changed probes
    - Noise (N): Mean square difference between replicates
    - Signal Quality = 10 * log10(S/N)
@@ -459,12 +526,17 @@ knitr::include_graphics("_GN4GD_analysis_figures/Figure3A.png", dpi=200)
 <p><p/>
 * To identify significantly changed probes, the paper:
    1. Takes the top 2% of probes sorted by difference in signal between conditions
-   2.es a 147bp spatial averaging window to focus on biologically relevant regions
+   2. Uses a 147bp spatial averaging window to focus on biologically relevant regions
    3. Takes the intersection of top probes identified by different methods to avoid bias
 
 <br/>
 
-# Data Analysis - Huber vs Beer ,,, TBC
+
+###  Huber {-}
+
+<br/>
+
+# Data Analysis  ,,, TBC
 
 
 <br/>
@@ -553,9 +625,12 @@ LEE2007_AB
 
 ```
 
-* Try ArrayExpress::ArrayExpress
+* Try ArrayExpress::ArrayExpress()
 
 LEE2007_eset <- ArrayExpress::ArrayExpress('E-MEXP-1172')
+
+
+
 <br/>
 
 # Extras {.tabset}
@@ -681,6 +756,82 @@ The paper made use of several datasets:
 ####################################################
  # ARCHIVE CODE BELOW
 ####################################################
+####################################################
+
+* $\mu_{low}}$ can be set at a level where it is entirely determined by the reference probes
+   - If fewer than 25% of the probes in a set are in the test condition, then Q1 is
+entirely determined by the reference probes, which is what we want.
+
+## Read in Data {-}
+
+```{r ARCH-gn4gd-read-lee, cache=T, cache.vars = "XYZ", echo=F, eval=F}
+
+accession = "E-MEXP-1172"
+dest_dir = "../extData/lee_2007_data"
+
+cat("Attempting to download data for", accession, "...\n")
+
+  # Create directory if it doesn't exist
+  if (!dir.exists(dest_dir)) {
+    dir.create(dest_dir)
+  }
+
+ # Try to download the data using ArrayExpress package
+  tryCatch({
+    # Download raw data
+    raw_data <- ArrayExpress::getAE(accession, path = dest_dir, type = "raw")
+    cat("Successfully downloaded raw data\n")
+    return(raw_data)
+  }, error = function(e) {
+    cat("Could not download data directly. Error:", e$message, "\n")
+    cat("Trying alternative method...\n")
+
+    # Alternative: Try to download from FTP directly
+    ftp_url <- paste0("ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/experiment/MEXP/",
+                     accession, "/")
+    dest_file <- file.path(dest_dir, paste0(accession, ".zip"))
+
+    tryCatch({
+      download.file(ftp_url, dest_file, mode = "wb")
+      cat("Successfully downloaded data from FTP\n")
+      unzip(dest_file, exdir = dest_dir)
+      return(list(path = dest_dir))
+    }, error = function(e2) {
+      cat("Failed to download from FTP. Error:", e2$message, "\n")
+      cat("Will use simulated data instead.\n")
+      return(NULL)
+    })
+  })
+#
+#Could not download data directly. Error: there is no package called ‘oligo’ 
+#Trying alternative method...
+#trying URL 'ftp://ftp.ebi.ac.uk/pub/databases/arrayexpress/data/experiment/MEXP/E-MEXP-1172/'
+#Successfully downloaded data from FTP
+```
+
+* Manual download includes `eset` objec.  See extData=/E-MEXP-1172.eSet.r.
+   - has no feature data
+
+
+```{r ARCH-gn4gd-load-lee-2, cache=T, cache.vars = "XYZ", echo=F, eval=F}
+#ls_vec <- ls()
+
+  load("../extData/lee_2007_data/E-MEXP-1172.eSet.r")
+
+#setdiff(ls(), ls_vec)
+
+LEE2007_AB <- study
+rm(study)
+
+LEE2007_AB
+
+```
+
+* Try ArrayExpress::ArrayExpress()
+
+LEE2007_eset <- ArrayExpress::ArrayExpress('E-MEXP-1172')
+
+
 
 # Data Analysis - Lee et al. 2007 [@Lee:2007aa] {.tabset}
 

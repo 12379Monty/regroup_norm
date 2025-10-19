@@ -1,30 +1,30 @@
 
 
 processing file: _GN4GD_analysis.Rmd
-1/31                      
-2/31 [sidenote]           
-3/31                      
-4/31 [setup]              
-5/31                      
-6/31 [gn4gd-GlobalOptions]
-7/31                      
-8/31 [gn4gd-Prelims]      
-9/31                      
-10/31 [gn4gd-load-packages]
-11/31                      
-12/31 [gn4gd-yeast-oorg]   
-13/31                      
-14/31 [unnamed-chunk-1]    
-15/31                      
-16/31 [gn4gd-fig1]         
-17/31                      
-18/31 [unnamed-chunk-2]    
-19/31                      
-20/31 [gn4gd-Figure3A]     
-21/31                      
-22/31 [unnamed-chunk-3]    
+1/35                        
+2/35 [sidenote]             
+3/35                        
+4/35 [setup]                
+5/35                        
+6/35 [gn4gd-GlobalOptions]  
+7/35                        
+8/35 [gn4gd-Prelims]        
+9/35                        
+10/35 [gn4gd-load-packages]  
+11/35                        
+12/35 [gn4gd-yeast-oorg]     
+13/35                        
+14/35 [unnamed-chunk-1]      
+15/35                        
+16/35 [gn4gd-fig1]           
+17/35                        
+18/35 [unnamed-chunk-2]      
+19/35                        
+20/35 [gn4gd-Figure3A]       
+21/35                        
+22/35 [unnamed-chunk-3]      
 output file: _GN4GD_analysis.knit.md
 
-/usr/local/bin/pandoc +RTS -K512m -RTS _GN4GD_analysis.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output _GN4GD_analysis.html --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/table-classes.lua --embed-resources --standalone --variable bs3=TRUE --section-divs --template /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --number-sections --include-before-body /var/folders/jk/d24lm6n944q5y650lph85m7w0000gp/T//RtmpXPXS2p/rmarkdown-str597146951e3e.html --variable navbar=1 --variable theme=bootstrap --mathjax --variable 'mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --include-in-header /var/folders/jk/d24lm6n944q5y650lph85m7w0000gp/T//RtmpXPXS2p/rmarkdown-str597167f49ca5.html --variable code_folding=hide --variable source_embed=_GN4GD_analysis.Rmd --include-after-body /var/folders/jk/d24lm6n944q5y650lph85m7w0000gp/T//RtmpXPXS2p/file59716c5849f4.html --variable code_menu=1 --citeproc 
+/usr/local/bin/pandoc +RTS -K512m -RTS _GN4GD_analysis.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output _GN4GD_analysis.html --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/table-classes.lua --embed-resources --standalone --variable bs3=TRUE --section-divs --template /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --number-sections --include-before-body /var/folders/jk/d24lm6n944q5y650lph85m7w0000gp/T//Rtmp8BWQdm/rmarkdown-str66523a0e8f8e.html --variable navbar=1 --variable theme=bootstrap --mathjax --variable 'mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --include-in-header /var/folders/jk/d24lm6n944q5y650lph85m7w0000gp/T//Rtmp8BWQdm/rmarkdown-str665211f2d169.html --variable code_folding=hide --variable source_embed=_GN4GD_analysis.Rmd --include-after-body /var/folders/jk/d24lm6n944q5y650lph85m7w0000gp/T//Rtmp8BWQdm/file66525c924db3.html --variable code_menu=1 --citeproc 
 
 Output created: _GN4GD_analysis.html

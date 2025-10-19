@@ -1,0 +1,678 @@
+---
+title:  "Group Normalization - Data Acquisition"
+#subtitle: ""
+author: "[Francois Collin](https://www.linkedin.com/in/francoisz/)"
+#date: '`r format(Sys.time(), "%a %b %d", tz="America/Los_Angeles")`'
+always_allow_html: yes
+output:
+  html_document:
+    code_folding: hide
+    code_download: true
+    toc: true
+    toc_depth: 2
+    # does this have an effect
+    fig_captiot: yes
+    # this has no effect
+    number_sections: no
+    # css: ['../_css/pandoc3.css', '../_css/myMargins.css']
+bibliography: [../Refs/group_norm.bib,../../_bibFiles/_healthy_aging.bib, ../../_bibFiles/_Breiman.bib, ../../_bibFiles/_Freedman.bib, ../../_bibFiles/_Yu.bib, ../../_bibFiles/_RUV.bib, ../../_bibFiles/_RMA.bib, ../../_bibFiles/_scRNAseq_norm.bib]
+csl: ../../_csl/cell-numeric.csl
+link-citations: true
+---
+
+
+```{css sidenote, echo = FALSE}
+
+.main-container {
+    margin-left: 250px;
+}
+.sidenote, .marginnote { 
+  float: right;
+  clear: right;
+  margin-right: -40%;
+  width: 37%;         # best between 50% and 60%
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 1.1rem;
+  line-height: 1.3;
+  vertical-align: baseline;
+  position: relative;
+  }
+```
+
+
+<style>
+@import url('https://fonts.googleapis.com/css?family=Raleway');
+@import url('https://fonts.googleapis.com/css?family=Oxygen');
+@import url('https://fonts.googleapis.com/css?family=Raleway:bold');
+@import url('https://fonts.googleapis.com/css?family=Oxygen:bold');
+
+.main-container {
+  max-width: 1400px !important;
+}
+
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+h1,h2,h3,h4 {
+  font-family: 'Raleway', sans-serif;
+}
+
+.container { width: 1400px; }
+
+caption {
+  font-size: 20px;
+  caption-side: top;
+  text-indent: 30px;
+  background-color: lightgrey;
+  color: black;
+  margin-top: 5px;
+}
+
+g-table-intro h4 {
+  text-indent: 0px;
+}
+</style>
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      comment = NA,
+                      warning = FALSE,
+                      error = FALSE,
+                      message = FALSE,
+                      cache = FALSE,
+                      fig.width = 8,
+                      fig.height = 4)
+```
+
+```{r get-data-GlobalOptions, results="hide", include=FALSE, cache=FALSE}
+
+knitr::opts_knit$set(stop_on_error = 2L) #really make it stop
+options(knitr.table.format = 'html')
+
+options(stringsAsFactors=F)
+
+ #knitr::dep_auto()
+
+```
+<!-- ######################################################################## -->
+
+
+```{r get-data-Prelims,  include=FALSE, echo=FALSE, results='hide', message=FALSE} 
+
+FN <- "_get_data"
+if(sum(grepl(FN, list.files()))==0) stop("Check FN")
+
+ suppressMessages(require(rmarkdown))
+ suppressMessages(require(knitr))
+
+ suppressPackageStartupMessages(require(methods))
+ suppressPackageStartupMessages(require(bookdown))
+
+ suppressPackageStartupMessages(require(data.table))
+ options(datatable.fread.datatable=F)
+
+ suppressPackageStartupMessages(require(plyr))
+ suppressPackageStartupMessages(require(dplyr))
+ suppressPackageStartupMessages(require(magrittr))
+
+ # Shotcuts for knitting and rendering while in R session (Invoke interactive R from R/Scripts folder)
+ kk <- function(n='') knitr::knit2html(paste("t", n, sep=''), envir=globalenv(),
+       output=paste(FN,".html", sep=''))
+
+ rr <- function(n='') rmarkdown::render(paste("t", n, sep=''), envir=globalenv(),
+       output_file=paste(FN,".html", sep='')) ##, output_dir='Scripts')
+
+ bb <- function(n='') browseURL(paste(FN,".html", sep=''))
+
+ # The usual shortcuts
+ zz <- function(n='') source(paste("t", n, sep=''))
+
+
+ WRKDIR <- '..'
+ if(!file.exists(WRKDIR)) stop("WRKDIR ERROR", WRKDIR)
+
+ 
+ # need a local copy of help_DIR
+ #help_DIR <- file.path(WRKDIR,'Scripts', 'help_files')
+ help_DIR <- file.path('.', 'help_files')
+ suppressMessages(dir.create(help_DIR, recursive=T))
+ 
+ temp_DIR <- file.path(WRKDIR,'Scripts', 'temp_files')
+ suppressMessages(dir.create(temp_DIR, recursive=T))
+
+```
+<!-- ######################################################################## -->
+
+*** 
+
+```{r get-data-utilityFns, echo=FALSE}
+ # Here we define some utility functions
+source('r/utilityFns.r')
+
+```
+
+<!-- ######################################################################## -->
+
+<!--
+# Introduction 
+
+* What data?  Where the data are.  Where they are not.  Etc.
+
+-->
+
+<br/>
+
+
+## Run Parameters {-}
+
+```{r get-data-params, cache=T, cache.vars='params_lst'}
+
+params_lst <- list(
+AE_ID  = "E-MEXP-1172",
+files_loc = "../extData/E-MEXP-1172",
+platform_ID = "A-AFFY-42",
+designTable = "A-AFFY-42.additional.txt")
+
+if(F)
+data.frame(
+   feature = names(params_lst), 
+   value = unlist(params_lst)
+) %>%
+knitr::kable(
+  row.names = F,
+  caption = "Run Parameters"
+)
+
+```
+
+```{r get-data-params-2, results = 'asis'}
+cat(sprintf(
+  "- <span style = 'color:grey'>%s:</span> `%s`  \n",
+  names(params_lst),
+  params_lst
+))  
+
+```
+
+<br/>
+
+# Array Design {.tabset}
+
+## Home {-}
+
+<br/>
+
+## Overview ## {-}
+
+<!--
+
+<p><p/>
+* Read and save table as is.
+   - preserve the ordering as it will be assumed that the cel files
+are stored in the same order
+-->
+
+
+```{r get-data-read-desiqn, cache = T, cache.vars = "AE_array_frm"}
+
+AE_array_frm <- with(params_lst,
+data.table::fread(file.path("../extData", platform_ID, designTable)))
+
+AE_array_frm %<>% dplyr::select(-V8)
+
+saveObj(paste0("_get_data_",params_lst$platform_ID, "_array_frm"), "AE_array_frm")
+
+```
+
+<p><p/>
+* The array has 2560 x 2560 = 6553600 cels which are described
+by 7 descriptors in  `r params_lst$designTable`.  
+   - The first 4 columns describe the spots on the array:
+      - **Row, Column, reporterName, reporterSequence** 
+   - The last 3 columns describe the targeted sequence in yeast:
+      - **targetName (yeast chrom), targetStart, targetEnd**
+
+
+<p><p/>
+* Of the `r nrow(AE_array_frm)` cells.
+   - `r sum(!is.na(AE_array_frm$targetName))` interrogate the yeast genome
+   - `r round(100*sum(!is.na(AE_array_frm$targetName))/nrow(AE_array_frm))`%
+of array spots or cells.
+
+<br/>
+
+
+
+## Content Design Highlights {-}
+
+<p><p/>
+* Interrogates the **<span style = 'color:blue'>entire genomic sequence</span>**,
+including repetitive elements. 
+
+* Includes oligonucleotides to interrogate the 
+<span style = 'color:blue'>**forward** and **reverse** strands</span>. 
+
+* **<span style = 'color:blue'>25mer probes</span>** were tiled 
+at **<span style = 'color:blue'>8bp intervals</span>** on each strand^[
+measured from the central position of each oligo]
+creating an overlap of approximately 17bp. 
+
+<p><p/>
+* The oligos detecting **<span style = 'color:blue'>sense and 
+antisense target were offset by 4bp</span>** 
+to yield  a high resolution view of the genome
+   - It is not clear what we get from the 4bp offsetting
+   - We do lose the opportunity to compare probe responses when the roles of
+probe and targets are reversed.
+
+<p><p/>
+* **approximately <span style = 'color:blue'>2% of total probes were 
+truncated</span>** to economize on the required number of oligonucleotide synthesis steps.
+
+<br/>
+
+##  Design Verification {- .tabset}
+
+### Home {-}
+
+<br/>
+
+### Prepare {-}
+
+
+<p><p/>
+* Order targets by reference Position, compute inter-target offset:
+should be 4!
+   - reference Position is the Start position on the sense strand,
+and the End position on the anti-sense strand.
+
+* Verify target and probe legnths - 2% of probes should be truncated.
+
+* Verify matching sequence in anti sense probes
+
+
+```{r get-data-by-target, cache=T, cache.vars=c("AE_array_plus_frm")}
+
+AE_array_plus_frm <- AE_array_frm %>%
+  dplyr::mutate(
+    sense = sign(targetEnd - targetStart),
+    targetPos = ifelse(sense == 1, targetStart, targetEnd),
+    rcSeq =  toupper(spgs::reverseComplement(reporterSequence),
+    reporterRefSeq = ifelse(sense == 1, reporterSequencence, 
+                
+    probeSize = nchar(reporterSequence),
+    targetLength = abs(targetEnd - targetStart) + 1
+  ) %>%
+  dplyr::arrange(targetName, targetPos) %>%
+  dplyr::filter(!is.na(targetName))
+
+
+AE_array_plus_frm %>%
+dplyr::select(probeSize, targetLength) %>% 
+gtsummary::tbl_summary()
+
+```
+
+```{r get-data-by-target-2, cache=T, cache.vars=c("AE_array_plus_frm")}
+ # DO NOT DIF WITHIN STRAND
+AE_array_plus_frm <- AE_array_plus_frm %>%
+  dplyr::select(-c(probeSize, targetLength, 
+                   reporterSequencence, rcSeq)) %>%
+  dplyr::group_by(targetName) %>%
+  dplyr::arrange(targetName, targetPos) %>%
+  dplyr::mutate(
+    diffPos = targetPos - lag(targetPos),
+    regionNum = rank(targetPos),
+    lcs_resulrt= purrrLLeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee  
+     find_lcs_str_f <- function(a, b) {
+  ) %>%
+dplyr::ungroup()%>%
+dplyr::relocate(c(reporterSequence, rcSeq), .after = last_col()) %>%
+dplyr::arrange(targetName, regionNum, sense)
+
+
+saveObj("_get_data_AE_array_plus_frm", 'AE_array_plus_frm')
+```
+
+<br/>
+
+### Verify Probe/Target Counts {-}
+
+* Only the first region, NC_001133 or chrom 1, have comparable
+number of probes.
+
+
+```{r get-data-probe-counts, cache=T, cache.vars=c('AE_array_probe_counts_frm')}
+
+AE_array_probe_counts_frm <- AE_array_plus_frm %>%
+dplyr::group_by(targetName, sense) %>%
+dplyr::summarize(
+   numRegions = dplyr::n_distinct(regionNum))
+ 
+```
+```{r}
+AE_array_probe_counts_frm %>%
+  DT::datatable(extensions = 'Buttons', options = list(pageLength=50),
+                caption = "Probe counts by region and strand")
+
+```
+
+<br/>
+
+### NC_001133 Detailed Probes {-}
+
+
+<p><p/>
+* look at first/last 50, by position (strands inter-mingled)
+to see how well the probes on the two strands align.
+   - note that there could be misalignemtn  and 
+subsequent re-alignment.
+   
+
+
+* All of NC_0011331
+
+```{r get-data-nc-001133, cache=T, cache.vars=c('nc_001133_frm')}
+
+
+nc_001133_frm <- AE_array_plus_frm %>%
+dplyr::filter(targetName == "ref|NC_001133|") %>%
+dplyr::select(Row, Column, reporterName, targetPos, sense,
+diffPos, regionNum, reporterSequence, rcSeq) %>%
+dplyr::arrange(targetPos)
+
+
+saveObj("_get_data_nc_001133_frm", 'nc_001133_frm')
+```
+```{r}
+loadObj("_get_data_nc_001133_frm", 'nc_001133_frm')
+```
+
+* First 50
+```{r get-data-nc-001133-first50, cache=T, cache.vars=c('',fig.cap = "nc_001133 - first 50")
+
+
+nc_001133_frm %>% 
+  dplyr::slice_head( n = 50) %>%
+  DT::datatable(extensions = 'Buttons', options = list(pageLength=50),
+                caption = "nc_001133 - first 50")
+
+```
+
+* Last 50
+```{r get-data-nc-001133-lastlastlastrrr50, cache=T, cache.vars=c('',fig.cap = "nc_001133 - last 50")
+
+
+nc_001133_frm %>% 
+  dplyr::slice_tail( n = 50) %>%
+  DT::datatable(extensions = 'Buttons', options = list(pageLength=50),
+                caption = "nc_001133 - last 50")
+
+```
+
+* It is really difficult to see how the reverse sense strand probe at +4
+offset matches with the sense strand probe.
+
+* The `stringdist` package offers a fast, flexible approach
+to finding the longest common substring (LCS), which is a contiguous
+subsequence. It provides a distance metric based on the number of
+unpaired characters. 
+
+```{r get-data-seq-sim}
+
+JJ <- 1
+
+sapply(1:50, function (JJ)
+with(nc_001133_frm, 
+   c(JJ, stringdist::stringdist(
+   reporterSequence[JJ],
+   reporterSequence[JJ+1],
+   method = "lcs"))
+)) 
+
+```
+
+* A common approach is to find the actual substring 
+in common.
+
+```{r get-data-find-lcs, cache=T, cache.vars = c("find_lcs_str_f")}
+
+# A common approach is to find the actual substring with a custom function.
+# The following Stack Overflow example uses a dynamic programming approach
+# to find the longest common substring.
+# Credit: https://stackoverflow.com/a/35384317/989255
+
+# Troubleshooting
+xxx  <- function() {
+JJ <- 1
+a <- nc_001133_frm$reporterSequence[JJ]
+b <-  nc_001133_frm$reporterSequence[JJ+1]
+}
+
+
+find_lcs_str_f <- function(a, b) {
+  A <- strsplit(a, "")[[1]]         # from strib
+  B <- strsplit(b, "")[[1]]
+  L <- matrix(0, length(A), length(B))
+  ones <- which(outer(A, B, "=="), arr.ind = TRUE)
+  ones <- ones[order(ones[, 1]), ]
+
+  for (i in 1:nrow(ones)) {
+    v <- ones[i, , drop = FALSE]
+    L[v] <- ifelse(any(v == 1), 1, L[v - 1] + 1)
+  }
+
+  max_len <- max(L)
+  if (max_len == 0) return("")
+  
+  max_loc <- which(L == max_len, arr.ind = TRUE)[1, ]
+  max_str <- paste0(A[(max_loc[1] - max_len + 1):max_loc[1]], collapse = "")
+
+  list(
+    loc = unlist(max_loc[1]) - max_len + 1, 
+    len = max_len,
+    lcs = max_str)
+
+} #find_lcs_str_f
+
+```
+
+
+<br/>
+
+# Cel Files
+
+## Download the Cel file
+
+```{r get-data-download-cel, cache=T, cache.vars="anno_AE", eval=F}
+with(params_lst,
+  if(!dir.exists(files_loc))
+  dir.create(files_loc)
+)
+a
+anno_AE <- with(params_lst, 
+  ArrayExpress::getAE(
+  accession = AE_ID,
+  path = files_loc,
+  type = "raw", 
+  extract = TRUE, 
+  #sourcedir = path, ###   if stored locally
+  overwrite = FALSE)
+)
+
+```
+
+* Verify download
+
+```{r get-data-verify-download}
+
+files_vec <- list.files(params_lst$files_loc)
+ 
+
+```
+
+<br/>
+
+
+## Read the Cel files
+
+* To read cel files when there is no cdf
+`affyio::read.celfile` can be used.
+
+
+
+<br/> 
+
+# Appendix
+
+## Read Affymetrix (Affy) CEL files {-}
+
+To read Affymetrix (Affy) CEL files from ArrayExpress, you will use the statistical programming language R and packages from the Bioconductor project. The primary Bioconductor packages for this task are for downloading the data and or for reading and preprocessing the CEL files. [1, 2, 3]
+
+Step 1: Install R and Bioconductor
+If you don't have it, install R from the CRAN website.
+Open R or RStudio and install Bioconductor and the necessary packages by running the following commands: [4]
+
+Step 2: Download the CEL files
+
+You will need the ArrayExpress accession code for the dataset you wish to download (e.g., E-MTAB-2967).
+Use the function from the package to automatically download the raw CEL files and experiment metadata.
+First, create a directory to store your files. [5]
+
+Step 3: Read and preprocess the CEL files
+
+After downloading the files, you can use either the or package to read and preprocess the data. The package is a more modern alternative suitable for most newer arrays, while is a classic option. [1, 3, 6]
+
+Option A: Using the package
+The package is generally recommended for newer Affymetrix arrays and provides robust preprocessing methods.
+Load the package.
+List the CEL files in your download directory.
+Read the CEL files into an object.
+Perform Robust Multi-array Average (RMA) normalization to get gene expression values.
+Access the expression matrix.
+
+Option B: Using the package
+The package is a classic tool for handling Affymetrix data.
+Load the package.
+Set your working directory to the folder containing your CEL files.
+Read the CEL files into an object.
+Perform RMA normalization to create an object.
+Access the expression matrix. [3]
+
+Step 4: Further analysis
+
+After obtaining the expression matrix, you can proceed with your analysis, such as differential gene expression, clustering, or other bioinformatics methods. It is often useful to perform quality control checks on the raw data before normalization. [4, 7, 8, 9, 10]
+
+
+AI responses may include mistakes.
+[1] https://gtk-teaching.github.io/Microarrays-R/03-Supplemental-Affy/index.html
+[2] https://www.bioconductor.org/packages/release/workflows/vignettes/maEndToEnd/inst/doc/MA-Workflow.html
+[3] https://bioconductor.org/packages/devel/bioc/vignettes/affy/inst/doc/affy.pdf
+[4] http://bioconductor.jp/packages/3.19/workflows/vignettes/maEndToEnd/inst/doc/MA-Workflow.html
+[5] https://pmc.ncbi.nlm.nih.gov/articles/PMC6063319/
+[6] https://pmc.ncbi.nlm.nih.gov/articles/PMC10111666/
+[7] http://homer.ucsd.edu/homer/basicTutorial/affymetrix.html
+[8] https://www.mathematica-journal.com/2013/11/26/detecting-differential-gene-expression-using-affymetrix-microarrays/
+[9] https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002276
+[10] https://f1000research.com/articles/9-1447
+
+
+
+# References {#references}
+<div id="refs"></div>
+    
+<br/> 
+
+```{r , echo=FALSE}
+  knit_exit()
+```
+
+```{r , eval=T}
+pander::pander(sessionInfo())
+```
+
+  * WRKDIR = `r normalizePath(WRKDIR)`
+  * FN = `r FN`
+  * RUN DATE = `r date()`
+
+
+############################################################
+## ARCHIVED CODE BELOW {-}
+############################################################
+
+safe_reverseComplement <- function(x, on_error = NA) {
+  tryCatch(
+    expr = {
+      # Attempt the reverseComplement operation
+      Biostrings::reverseComplement(x)
+    },
+    error = function(e) {
+      # Handle the error
+      warning(paste("An error occurred during reverse complementation:", e$message), call. = FALSE)
+      return(on_error)
+    }
+  )
+}
+
+    ###repDNAString =  Biostrings::DNAString(reporterSequence),
+    ###rcSeq =  Biostrings::reverseComplement(repDNAString)
+    ###rcSeq =  safe_reverseComplement(reporterSequence)
+## affy::ReadAffy bombs without a cdf.
+
+
+```{r get-data-read-cel, cache=T, cache.vars="ae_id_affyBatch", eval=F}
+
+ae_id_affyBatch <- affy::ReadAffy(celfile.path = params_lst$files_loc)
+
+```
+
+```
+AffyBatch object
+size of arrays=2560x2560 features (20 kb)
+cdf=Scerevisiae_tlg (??? affyids)
+number of samples=6
+Error in getCdfInfo(object) : 
+  Could not obtain CDF environment, problems encountered:
+Specified environment does not contain Scerevisiae_tlg
+Library - package scerevisiaetlgcdf not installed
+Bioconductor - scerevisiaetlgcdf not available
+In addition: Warning message:
+missing cdf environment! in show(AffyBatch)
+
+```
+
+
+   - each target locus on the genome of a sample gives rise 
+to two sets of fragments in the extraction, one for each strand.
+      - it will be useful to monitor the strand specific differences 
+inferred target concentrations as there is built in truth in this context.  
+         - there is a 4bp shift making the matchig peobes
+
+
+```{r get-dafa-array-data-look, cache=T,cache.vars='',eval = F}
+
+AE_array_frm %>%
+#dplyr::filter(!is.na(targetName)) %>%
+#dplyr::filter(targetName == "ref|NC_001133|") %>%
+dplyr::filter(targetName == "ref|NC_001224|") %>%
+dplyr::mutate(orientation = targetEnd - targetStart) %>%
+dplyr::arrange(targetPos) %>%
+  DT::datatable(extensions = 'Buttons', options = list(pageLength=50),
+                caption = "Mito Sequence (001224)")
+
+```
+
+
+
+
+<!-- To run
+# nohup Rscript -e "knitr::knit2html('_get_data.Rmd')" > _get_data.log  &
+
+# Or
+# nohup Rscript -e "rmarkdown::render('_get_data.Rmd')" > _get_data.log  &
+
+-->

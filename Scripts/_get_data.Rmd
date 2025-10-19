@@ -1,0 +1,864 @@
+---
+title:  "Group Normalization - Data Acquisition" 
+author: "[Francois Collin](https://www.linkedin.com/in/francoisz/)"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+always_allow_html: yes
+output:
+  # for gtanse of .tabset
+  bookdown::html_document2:
+  #html_document:
+    code_folding: hide
+    code_download: true
+    toc: true
+    toc_depth: 2
+    # does this have an effect
+    fig_caption: yes
+    # this has no effect
+    number_sections: yes
+    # css: ['../_css/pandoc3.css', '../_css/myMargins.css']
+bibliography: [../Refs/group_norm.bib,../../_bibFiles/_healthy_aging.bib, ../../_bibFiles/_Breiman.bib, ../../_bibFiles/_Freedman.bib, ../../_bibFiles/_Yu.bib, ../../_bibFiles/_RUV.bib, ../../_bibFiles/_RMA.bib, ../../_bibFiles/_scRNAseq_norm.bib] 
+csl: ../../_csl/cell-numeric.csl
+link-citations: true 
+---
+
+`r LONG_EVAL = T`
+
+<!--
+### LONG_EVAL = `r LONG_EVAL`  {-}
+-->
+
+```{r get-data-Prelims,  include=FALSE, echo=FALSE, results='hide', message=FALSE} 
+
+FN <- "_get_data" 
+if(sum(grepl(FN, list.files()))==0) stop("Check FN")
+
+PREFIX <- FN
+
+ suppressMessages(require(rmarkdown))
+ suppressMessages(require(knitr))
+
+ suppressPackageStartupMessages(require(methods))
+ suppressPackageStartupMessages(require(bookdown))
+
+ suppressPackageStartupMessages(require(magrittr))
+
+ # Shotcuts for knitting and rendering while in R session (Invoke interactive R from R/Scripts folder)
+ kk <- function(n='') knitr::knit2html(paste("t", n, sep=''), envir=globalenv(),
+       output=paste(FN,".html", sep=''))
+
+ rr <- function(n='') rmarkdown::render(paste("t", n, sep=''), envir=globalenv(),
+       output_file=paste(FN,".html", sep='')) ##, output_dir='Scripts')
+ bb <- function(n='') browseURL(paste(FN,".html", sep='')) 
+ # Theual shortcuts 
+ zz <- function(n='') source(paste("t", n, sep='')) 
+
+ WRKDIR <- '..'
+ if(!file.exists(WRKDIR)) stop("WRKDIR ERROR", WRKDIR)
+
+
+ # file rmarkdown file management options: cache, figures
+ cache_DIR <- paste0(PREFIX, '_cache/')
+ suppressMessages(dir.create(cache_DIR, recursive=T))
+ opts_chunk$set(cache.path=cache_DIR)
+
+ # NOTE: need to add PREFIX to figure path
+ # due to confluence "feature" of keeping the filename of embedded figures
+
+ figure_DIR <- paste(PREFIX, '_figures')
+ suppressPackageStartupMessages(dir.create(figure_DIR, recursive=T))
+ opts_chunk$set(fig.path=paste0(figure_DIR, PREFIX))
+
+ # need a local copy of help_DIR
+ #help_DIR <- file.path(WRKDIR,'Scripts', 'help_files')
+ help_DIR <- file.path('.', 'help_files')
+ suppressMessages(dir.create(help_DIR, recursive=T))
+   
+ temp_DIR <- file.path('.','Scripts', 'temp_files')
+ suppressMessages(dir.create(temp_DIR, recursive=T))
+
+
+``` 
+<!-- ######################################################################## -->
+
+***
+
+```{r get-data-utilityFns, echo=FALSE}
+ # Here we define some utility functions
+source('r/utilityFns.r')
+
+```
+
+
+<!--
+
+* What data?  Where the data are.  Where they are not.  Etc.
+
+-->
+
+<br/>
+
+
+```{r get-data-params, cache=T, cache.vars='params_lst'}
+
+params_lst <- list( 
+   AE_ID  = "E-MEXP-1172", 
+   files_loc = "../extData/E-MEXP-1172", 
+   platform_ID = "A-AFFY-42", 
+   designTable = "A-AFFY-42.additional.txt")
+
+if(F) 
+data.frame( 
+   feature = names(params_lst), 
+   value = unlist(params_lst)) %>%
+knitr::kable( 
+row.names = F, 
+caption = "Run Parameters")
+
+```
+
+## Run Parameters {-}
+
+```{r get-data-params-2, results = 'asis'} 
+   cat(sprintf( "- <span style = 'color:grey'>%s:</span> `%s`  \n", 
+   names(params_lst), params_lst))  
+
+```
+
+<br/>
+
+# Array Design {.tabset}
+
+## Home {-}
+
+```{r get-data-read-desiqn, cache = T, cache.vars = "AE_array_frm", eval=F}
+
+AE_array_frm <- with(params_lst, 
+data.table::fread(file.path("../extData", platform_ID, designTable)))
+
+AE_array_frm %<>% dplyr::select(-V8) %>% dplyr::rename(regionName = targetName)
+
+saveObj(paste0("_get_data_",params_lst$platform_ID, "_array_frm"),
+"AE_array_frm")
+``` 
+```{r} 
+loadObj(
+  paste0("_get_data_",params_lst$platform_ID, "_array_frm"), 
+  "AE_array_frm")
+```
+
+Define functions ...
+
+```{r get-data-def-fun, cache=T, cache.vars = c("find_lcs_str_f")}
+
+# Define function to find the longest common substring.
+
+# A common approach is to find the actual substring with a custom function.
+# The following Stack Overflow example uses a dynamic programming approach to
+# find the longest common substring.  Credit:
+# https://stackoverflow.com/a/35384317/989255
+
+# Troubleshooting
+xxx  <- function() { 
+  JJ <- 1 
+  a <- AE_array_plus_frm$reporterRefSeq[JJ] 
+  b <- AE_array_plus_frm$reporterRefSeq[JJ+1] 
+}
+
+
+find_lcs_str_f <- function(a, b) { 
+  Result <- c( 
+  loc = NA, 
+  len = NA, 
+  lcs = NA)
+
+  if(!is.na(a) & !is.na(b)) { 
+    A <- strsplit(a, "")[[1]]         # from strib 
+    B <- strsplit(b, "")[[1]] 
+    L <- matrix(0, length(A), length(B)) 
+    ones <- which(outer(A, B, "=="), arr.ind = TRUE) 
+    ones <- ones[order(ones[, 1]), ]
+  
+    for (i in 1:nrow(ones)) { 
+      v <- ones[i, , drop = FALSE] 
+      L[v] <- ifelse(any(v == 1), 1, L[v - 1] + 1) 
+    }
+  
+    max_len <- max(L) 
+    if (max_len == 0) return("")
+    
+    max_loc <- which(L == max_len, arr.ind = TRUE)[1, ] 
+    max_str <- paste0(A[(max_loc[1] - max_len + 1):max_loc[1]], collapse = "")
+  
+    # Changed from  list()
+    Result = c( 
+    loc = max_loc[[1]] - max_len[1] + 1, len = max_len, 
+    lcs = max_str) 
+   } #if(!is.na(a) & !is.na(b))
+   return(Result) 
+} #find_lcs_str_f
+
+```
+
+
+## Overview ## {-}
+
+<!--
+
+<p><p/>
+* Read and save table as is.
+   - preserve the ordering as it will be assumed that the cel files are stored
+     in the same order 
+-->
+
+
+<p><p/>
+* The array has 2560 x 2560 = 6553600 cels or features which are described
+by line items in a 6553600 x 7 table - `r params_lst$designTable`: 
+   - The first 4 columns describe the spots on the array:
+      - **Row, Column, reporterName, reporterSequence** 
+   - The last 3 columns describe the targeted sequence in yeast:
+      - **regionName (yeast chrom), targetStart, targetEnd**
+
+
+<!--
+<p><p/>
+* By inspection we see that rows of annotated yeast targets are
+interleaved with rows of targets with little annotation.
+
+annotation_num_frm <- AE_array_frm %>%
+dplyr::group_by(Row)  %>%
+dplyr::summarize(
+  N_annot = sum(!is.na(regionName))
+)
+-->
+
+* Of the `r nrow(AE_array_frm)` cells.
+   - `r sum(!is.na(AE_array_frm$regionName))` interrogate the yeast genome
+   - This is a bit less than what claude.ai Sonnet 4.5 found  -
+See Section @gene-annot.
+
+<br/>
+
+## Content Design Highlights {-}
+
+
+<p><p/>
+* See <span style="font-variant:small-caps;">methods</span> section
+in Lee et al. (2007) [@Lee:2007aa].
+
+<p><p/>
+* Interrogates the **<span style = 'color:blue'>entire genomic  sequence</span>**,
+including repetitive elements. 
+   - the repetitive elements provide no useful.
+   - genomic location has been  set  so missing for these
+
+<p><p/>
+* Includes oligonucleotides to interrogate the 
+<span style = 'color:blue'>**forward** and **reverse** strands</span>.^[
+forward/reverse, plus/minus, sense/antisense are used interchangeably her
+here.
+
+* **<span style = 'color:blue'>25mer probes</span>** were tiled 
+at **<span style = 'color:blue'>8bp intervals</span>** on each strand^[
+measured from the central position of each oligo] creating a
+sense specific overlap of 17bp. 
+
+<p><p/>
+* The oligos detecting **<span style = 'color:blue'>sense and 
+antisense targets were offset by 4bp</span>** to yield  a high resolution view
+of the genome
+   - For a fixed region, the  capture  of targets from the complimentary strands
+     involves the same diploid/double stranded sequence, but the sequence bound to
+the array differs.
+<!--
+      - when we combine counts across the two strand specific capture modes and
+compare across samples, we will see strand effects in many cases.
+-->
+
+<!-- May be incorrect - see _get_data_truncated_pobes.md
+<p><p/>
+* **approximately <span style = 'color:blue'>2% of total probes were 
+truncated</span>** to economize on the required number of oligonucleotide
+synthesis steps.
+   - this is not reflected in the probe information that we have.
+-->
+
+<br/>
+
+##  Design Verification {- .tabset}
+
+### Home {-}
+
+<br/>
+
+
+### Preparation {-}
+
+
+<p><p/>
+* Order targets by Reference Position, compute inter-target offset:
+should be 4 bp shifts between alternating sense strands
+   - **Reference Position** for probes is the **Start Position** on the sense
+     strand, and the **End Position** on the anti-sense strand.
+      - **sense or plus strand probes** are depicted on the
+sense strand coordinate axis in the obvious way -
+line up the start of the probe to the axis coordinate.
+      - for the **anti-sense probes**, the anti-sense or minus strand coordinates are put
+        down in the reverse direction - the last anti-sense strand coordinate
+aligns with the first sense strand coordinate, and the first anti-sense strand
+coordinate aligns with the last sense strand coordinate.
+      - **a reference position occurs every 4bp on alternating strands**.
+when the start position of sense strand probes are at 8 bp intervals,
+and the end position of anti-sense strand probes are at 8 bp intervals
+shifted 4bp from the sense strand probe position, 
+<!--
+      - an alternative design would be to lay the anti-sense probes at the same
+        loci as the sense strand probes; 0 bp shift.
+	 - **under what assumptions is each design preferable.?**
+	    - only if strand effects are of interest 
+-->
+
+<!--
+* Verify matching sequence in anti sense probes
+-->
+
+<p><p/>
+* With the targets ordered by reference position within region, the target layout
+can be compared to the design by examining the following quantities:
+<p><p/>
+   - **diffPos = refPos - lag(refPos)** : should be 4 by design
+<p><p/>
+   - **loc, len** = the starting position and length of the longest sequence in the
+     current reporter sequence also found in previous reporter sequence
+       - should be 5 and 21, respectively, by design.
+<p><p/>
+   - **strand2** = lag_strand || strand
+
+<p><p/> 
+* Let the triplet **Sign = (diffPos, loc, len)** denote a target's signature or
+phenotype.  Signatures of interest include:
+   - **(4, 5, 21)** - the Design signature
+   - **(0, 1, 25)** -  Replicate target signatuge (exact same sequence)
+
+<p><p/> 
+* Other interesting target sequences are indicated by runs strand2 == mm or pp, 
+indicating that only one strand is interrogated for a stretch of the genome.
+
+<br/>
+
+```{r get-data-by-target, cache=T, cache.vars=c("AE_array_plus_frm"), eval=F & LONG_EVAL}
+
+AE_array_plus_frm <- AE_array_frm %>% 
+dplyr::mutate(
+sense = sign(targetEnd - targetStart), 
+targetPos = ifelse(sense == 1, targetStart, targetEnd), 
+rcSeq = toupper(spgs::reverseComplement(reporterSequence)), 
+reporterRefSeq = ifelse(sense == 1, reporterSequence, rcSeq),
+                
+probeSize = nchar(reporterRefSeq), 
+targetLength = abs(targetEnd - targetStart) + 1
+) %>% 
+dplyr::arrange(regionName, targetPos) %>%
+dplyr::filter(!is.na(regionName))
+
+  ### DONT SAVE AS NAME COLLIDES WITH ENHANCED VERSION
+
+```
+
+
+```{r get-data-by-target-2, cache=T, cache.vars=c("AE_array_plus_tib1"), eval=F & LONG_EVAL}
+AE_array_plus_tibl <- AE_array_plus_frm %>% 
+dplyr::select(-c(probeSize, targetLength, reporterSequence, rcSeq)) %>% 
+dplyr::group_by(regionName) %>%
+dplyr::arrange(regionName, targetPos) %>% 
+dplyr::mutate(
+  sense2 = sense * dplyr::lag(sense), 
+  strand = ifelse(sense == 1, 'p', 'm'),
+  lag_strand = ifelse(dplyr::lag(sense) == 1, 'p', 'm'),
+  diffPos = targetPos - dplyr::lag(targetPos), 
+  ###regionNum = rank(targetPos),  - NOT NEEDED 
+  lcs_result = purrr::map2(
+    dplyr::lag(reporterRefSeq),
+    reporterRefSeq, 
+    find_lcs_str_f)) %>% 
+#tidyr::unnest(lcs_result) %>%
+tidyr::unnest_wider(lcs_result) %>% dplyr::ungroup()%>%
+dplyr::arrange(regionName, targetPos, sense)
+
+AE_array_plus_tibl %<>%
+tidyr::unite(
+ col = "strand2",
+ lag_strand, strand,
+ sep = '')
+
+AE_array_plus_tibl %<>% 
+dplyr::relocate(regionName, targetPos,
+                diffPos, loc, len, strand2, reporterRefSeq, 
+                Row, Column, reporterName)
+
+saveObj("_get_data_AE_array_plus_tibl", 'AE_array_plus_tibl')
+
+``` 
+```{r} 
+loadObj("_get_data_AE_array_plus_tibl", 'AE_array_plus_tibl') 
+```
+
+```{r get-data-subset-array, cache=T, cache.vars="AE_array_plus_n100_frm"}
+
+row_lst <- split(rownames(AE_array_plus_tibl),AE_array_plus_tibl$regionName)
+
+AE_array_plus_n100_frm <- do.call("rbind", lapply(row_lst, function(ROWS)
+AE_array_plus_tibl[ROWS[1:100], ]))
+
+```
+
+
+
+<br/>
+
+### Sample Probe Data {-}
+
+```{r get-data-display-array, fig.cap="Detailed Probe Description - First 100 by Group"}
+
+AE_array_plus_n100_frm %>% DT::datatable(
+  extensions = 'Buttons', 
+  options = list(pageLength=50), 
+  caption = "Detailed Probe Description - First 100 by Group", 
+  rownames=F)
+
+```
+
+
+<br/>
+
+### Probe Data Summaries {- .tabset}
+
+#### Home {-}
+
+<br/>
+
+#### Top Signatures {-}
+
+* Let the quartet (diffPos, loc, len, strand2) denote a target's signature or
+phenotype. 
+
+<p><p/> 
+* In the following table we see:
+   - the majority of the probes (86.4%) follow the design:  a probe every 4bp
+from alternating strands - 4-5-21~{mp|pm}
+   - the next most prominent probe type (4.8%) occurs when the off-strand probe at
+4bp offset is missing - 8-9-17~{pp|mm}
+   - the next most prominent probe type are replicates from the same strand,
+0-1-25~{pp|mm}.  Replicates from the off-strand are slightly less prominent -
+these have signature 0-1-25~{pm|mp}.
+   -  Other prominent signatures seen in Table \@(tab:get-data-probe-sum)
+are pseudo replicates at offsets of 1, 2, and 3 bp. 
+
+```{r get-data-probe-sum, cache=T, cache.vars=c("AE_array_plus_tibl", "probe_sign_count_frm"), fig.cap =  "Top Tiling Array Probe Signatures"}
+
+AE_array_plus_tibl %<>%
+tidyr::unite(
+ col = "probe_sign",
+ diffPos, loc, len, strand2,
+ sep = '~') %>%
+dplyr::mutate(
+  probe_sign = sub("~", '-', sub("~", '-', probe_sign))
+ )
+
+probe_sign_count_frm <- AE_array_plus_tibl %>%
+dplyr::group_by(probe_sign) %>%
+dplyr::summarize(
+  count = dplyr::n()) %>%
+dplyr::mutate(
+  pct = round(count / sum(count) * 100, 1)
+) %>%
+as.data.frame()
+
+probe_sign_count_frm %>% 
+dplyr::arrange(desc(count)) %>%
+dplyr::filter(pct >= 0.1) %>%
+knitr::kable(
+  caption = "Top Tiling Array Probe Signatures"
+) %>%
+kableExtra::kable_styling(full_width = F)
+
+
+```
+
+<br/>
+
+
+
+
+
+#### Replicates {- .tabset}
+
+##### Home {-{
+
+<br/>
+
+##### Intro {-}
+
+* We have cis-strand (pp, mm) and trans-strand (pm, mp)
+replication
+
+* We each replicated sequence, how many replicates are there?
+
+* Collect set of replicated probes $\equiv$
+all probes with reporterRefSeq in the index set (i.e. in 0-1-25~{xx}
+
+* Count strand specific reporterRefSeq multiplicity.
+
+<p><p/>
+* How can these be used to evaluate algorithms proposed for the
+analysis of tiling array data?
+   - while the replicated probes will provide accurate estimates of
+some elements of variability, we need to keep in mind that these
+elements constitute only a fraction of the total variability,
+
+<!-- by region -->
+
+<br/>
+
+```{r get-data-reps-by-reg, cache =T, cache.vars='', results='asis'} 
+
+AE_array_plus_tibl %<>%
+dplyr::mutate(
+regName = sub("^ref|NC_",'',sub('|$', '', regionName))
+  )
+
+for(RN in unique(AE_array_plus_tibl$regName)) {
+
+  cat(paste0("##### ", RN, "{-} \n"))
+  reg_array_plus_tibl  <- AE_array_plus_tibl %>%
+  dplyr::filter(regName == RN)
+
+  index_reps_frm <-  reg_array_plus_tibl %>%
+  tidyr::separate("probe_sign", into = "probeSign", sep ='~', extra=drop) %>%
+  dplyr::filter(probeSign == "0-1-25")
+
+  all_index_reporterRefSeq_frm <- merge( 
+  index_reps_frm %>% dplyr::select(regionName, reporterRefSeq),
+  reg_array_plus_tibl)
+
+  nreps_reporterRefSeq_frm <- all_index_reporterRefSeq_frm %>%
+  dplyr::group_by( regionName, reporterRefSeq, sense) %>%
+  dplyr::summarize(nreps = dplyr::n())
+
+  nreps_reporterRefSeq_tbl <- with(nreps_reporterRefSeq_frm,
+  table(regionName, pmin(16, nreps))
+  )
+
+ nreps_reporterRefSeq_tbl %>%
+ knitr::kable(
+ caption = paste("Number of sites by rep (roofed at 16): capture =", 
+  REP_TYPE)
+ )
+
+  cat("\n\n") # Add newlines for proper Markdown rendering
+
+}
+
+
+```
+
+
+<br/>
+
+#### Single Srand {-}
+
+
+strand2 == 'pp' or 'mm' indicating that only one strand is interrogated
+for a stretch of the genome.
+
+<p><p/> 
+* Other interesting target sequences are indicated by runs of
+strand2 == 'pp' or 'mm' indicating that only one strand is interrogated
+for a stretch of the genome.
+
+
+
+<br/>
+
+
+
+
+
+
+<!-- ########################################### -->
+
+# Read the Cel files
+
+* To read cel files when there is no cdf
+`affyio::read.celfile` can be used.
+
+<br/> 
+
+
+# References {#references}
+<div id="refs"></div>
+    
+<br/> 
+
+# Appendix 
+
+
+
+## Genomic Annotations in A-AFFY-42.additional.txt {#gene-annot}
+
+<p><p/>
+* This section was compiled by claude.ai Sonnet 4.5.
+   - See [claude.ai Sonnet 4.5 query](https://claude.ai/share/8f25f99c-5c17-42f5-a49b-5a795db559af)
+
+
+<p><p/>
+* This section was compiled by claude.ai Sonnet 4.5.
+* **Background**: This document addresses the question of why many probes in the A-AFFY-42.additional.txt file (from ArrayExpress dataset E-MEXP-1172, associated with the Lee et al. 2007 yeast nucleosome occupancy study) have missing genomic location annotations.
+
+*  Summary of Findings: **The missing genomic locations are NOT due to data quality control after the fact, but rather by design during array manufacturing.**
+
+<br/> 
+
+
+### How A-AFFY-42.additional.txt Was Compiled {-}
+
+#### Array Design Overview {-}
+
+The array used in the Lee et al. study was an Affymetrix S. cerevisiae tiling array with high-density coverage, featuring 25-mer probes tiled at approximately 5-8 base pair resolution across the yeast genome.
+
+#### Compilation Process {-}
+
+1. **Source Files**: For Affymetrix tiling arrays, the primary source is the BPMAP (binary probe map) file, which contains the genomic probe position map and maps the X/Y coordinate of each probe on the array to its genomic position.
+
+2. **Curator Processing**: ArrayExpress curators convert manufacturer-supplied supporting files (like BPMAP files for Affymetrix arrays) into the standardized ADF table format, which is then appended to the metadata header to create a complete ADF.
+
+3. **Content of the File**: The ADF file describes what sequence is located at each position on an array and its annotation, including probe sequences, genomic coordinates, and cross-references to external databases.
+
+4. **Additional Information**: For tiling arrays, the BPMAP file parsing extracts information including unique probe IDs, chromosomal location, genomic start positions, X/Y coordinates on the physical array, and probe sequences.
+
+#### Key Components {-}
+
+The additional.txt file contains:  
+* **Probe identifiers** and their unique positions
+* **Genomic coordinates** (chromosome, start position)
+* **Probe sequences** (25-mer oligonucleotides)
+* **Physical array coordinates** (X, Y positions)
+* **Annotation cross-references** to genome assemblies
+* **Control sequences** (such as gcBinXX sequences) and annotations for different sequence sets within the array design
+
+### Definitive Answer: Why Genomic Annotations Are Missing {-}
+
+#### The Primary Reason: Exclusion of Repetitive Sequences {-}
+
+Tiling arrays are designed only for non-repetitive loci, which results in gaps in probe coverage. This is a fundamental design principle of Affymetrix tiling arrays.
+
+The initial BPMAP file from Affymetrix contained all probes, but the mapping of repetitive probes (around 109,000 probe pairs out of 3,018,000 probe pairs, representing approximately 3.6%) was excluded from the standard analysis files.
+
+##### Why Repetitive Sequences Are Excluded: {-}
+
+1. **Cross-hybridization problems**: Probes that align to 100 or more loci are considered promiscuous and are stored as unmapped objects.
+
+2. **Analysis complications**: Repetitive probes map to all locations in the genome, and the time needed for calculations increases in a nonlinear fashion as the number of probes with the same sequence mapped to different locations increases.
+
+3. **Signal interpretation**: Probes within repetitive regions may be responding to multiple copies of identical DNA throughout the genome, and repetitive elements have large variations in probe signal and are removed from the reference set computation.
+
+#### Additional Reasons for Missing Annotations {-}
+
+1. **Perfect Match Requirement**: During probe mapping, alignment is performed and the resulting hits are filtered to keep only those that constitute a perfect match across the whole probe sequence, while the rest are discarded. This means probes that don't perfectly match the reference genome are left without genomic coordinates.
+
+2. **Genome Build Issues**: It's not uncommon for genomes to be updated between builds, and the chromosomal extent when Affymetrix designed the array may have been different from what is reported currently. The Lee et al. (2007) array was designed based on an earlier yeast genome assembly (sacCer1), so some probes may not map to current genome builds.
+
+#### Quantitative Context {-}
+
+From the Stanford yeast tiling array documentation:
+- Total probe pairs on array: ~3,018,000
+- Repetitive probes excluded: ~109,000 (approximately 3.6%)
+- These excluded probes would appear in the ADF without genomic coordinates
+
+### Conclusion {-}
+
+**The missingness is intentional and represents a filtering decision made during array design and annotation compilation**, not a QC step applied to your data. 
+
+The missing annotations primarily represent:
+1. **Probes in repetitive/multi-copy genomic regions** (the vast majority of missing annotations)
+2. **Probes that don't perfectly match the reference genome**
+3. **Probes that map to sequences excluded from the standard tiling design**
+
+Users are left to decide if they feel useful information can be obtained from the repetitive probes, and some research groups create alternative BPMAP files that include these mappings, though this complicates downstream analysis significantly.
+
+### Recommendations for Analysis {-}
+
+1. **For most analyses**: Exclude probes without genomic coordinates, as these represent repetitive regions that would confound interpretation.
+
+2. **If you need repetitive probe information**: Look for alternative BPMAP files that include full mappings (though these are rarely used due to analysis complications).
+
+3. **Consider remapping**: If working with updated genome assemblies, consider remapping probe sequences to the current genome build using tools like xMAN or similar probe remapping software.
+
+4. **Document genome build**: Always note which genome build (e.g., sacCer1, sacCer3) your analysis is based on, as this affects probe coordinate interpretation.
+
+<br/>
+
+### References {-}
+
+#### Key Papers {-}
+- Lee, W., Tillo, D., Bray, N., Morse, R.H., Davis, R.W., Hughes, T.R., and Nislow, C. (2007). A high-resolution atlas of nucleosome occupancy in yeast. Nature Genetics 39, 1235–1244. https://doi.org/10.1038/ng2117
+- Ghandi, M., and Beer, M.A. (2012). Group normalization for genomic data. PLoS One 7, e38695.
+
+#### Related Resources {-}
+- ArrayExpress Dataset: E-MEXP-1172
+- Array Design: A-AFFY-42 (Affymetrix S. cerevisiae tiling array)
+- Stanford S288c Reference Sequence documentation: http://www-sequence.stanford.edu/s288c/bpmap.html
+- Lee et al. supplementary data: http://chemogenomics.stanford.edu/supplements/03nuc/
+
+#### Technical Documentation {-}
+- Ensembl Microarray Probe Mapping documentation
+- Affymetrix BPMAP file format specification
+- ArrayExpress ADF (Array Design Format) submission guidelines
+
+
+
+
+<br/>
+
+```{r , echo=FALSE}
+  knit_exit()
+```
+
+pander::pander(sessionInfo())
+```
+
+  * WRKDIR = `r normalizePath(WRKDIR)`
+  * FN = `r FN`
+  * RUN DATE = `r date()`
+
+
+############################################################
+## ARCHIVED CODE BELOW {-}
+############################################################
+# Appendix
+
+## Read Affymetrix (Affy) CEL files {-}
+
+To read Affymetrix (Affy) CEL files from ArrayExpress, you will use the statistical programming language R and packages from the Bioconductor project. The primary Bioconductor packages for this task are for downloading the data and or for reading and preprocessing the CEL files. [1, 2, 3]
+
+Step 1: Install R and Bioconductor
+If you don't have it, install R from the CRAN website.
+Open R or RStudio and install Bioconductor and the necessary packages by running the following commands: [4]
+
+Step 2: Download the CEL files
+
+You will need the ArrayExpress accession code for the dataset you wish to download (e.g., E-MTAB-2967).
+Use the function from the package to automatically download the raw CEL files and experiment metadata.
+First, create a directory to store your files. [5]
+
+Step 3: Read and preprocess the CEL files
+
+After downloading the files, you can use either the or package to read and preprocess the data. The package is a more modern alternative suitable for most newer arrays, while is a classic option. [1, 3, 6]
+
+Option A: Using the package
+The package is generally recommended for newer Affymetrix arrays and provides robust preprocessing methods.
+Load the package.
+List the CEL files in your download directory.
+Read the CEL files into an object.
+Perform Robust Multi-array Average (RMA) normalization to get gene expression values.
+Access the expression matrix.
+
+Option B: Using the package
+The package is a classic tool for handling Affymetrix data.
+Load the package.
+Set your working directory to the folder containing your CEL files.
+Read the CEL files into an object.
+Perform RMA normalization to create an object.
+Access the expression matrix. [3]
+
+Step 4: Further analysis
+
+After obtaining the expression matrix, you can proceed with your analysis, such as differential gene expression, clustering, or other bioinformatics methods. It is often useful to perform quality control checks on the raw data before normalization. [4, 7, 8, 9, 10]
+
+
+AI responses may include mistakes.
+[1] https://gtk-teaching.github.io/Microarrays-R/03-Supplemental-Affy/index.html
+[2] https://www.bioconductor.org/packages/release/workflows/vignettes/maEndToEnd/inst/doc/MA-Workflow.html
+[3] https://bioconductor.org/packages/devel/bioc/vignettes/affy/inst/doc/affy.pdf
+[4] http://bioconductor.jp/packages/3.19/workflows/vignettes/maEndToEnd/inst/doc/MA-Workflow.html
+[5] https://pmc.ncbi.nlm.nih.gov/articles/PMC6063319/
+[6] https://pmc.ncbi.nlm.nih.gov/articles/PMC10111666/
+[7] http://homer.ucsd.edu/homer/basicTutorial/affymetrix.html
+[8] https://www.mathematica-journal.com/2013/11/26/detecting-differential-gene-expression-using-affymetrix-microarrays/
+[9] https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002276
+[10] https://f1000research.com/articles/9-1447
+
+
+
+safe_reverseComplement <- function(x, on_error = NA) {
+  tryCatch(
+    expr = {
+      # Attempt the reverseComplement operation
+      Biostrings::reverseComplement(x)
+    },
+    error = function(e) {
+      # Handle the error
+      warning(paste("An error occurred during reverse complementation:", e$message), call. = FALSE)
+      return(on_error)
+    }
+  )
+}
+
+    ###repDNAString =  Biostrings::DNAString(reporterRefSeq),
+    ###rcSeq =  Biostrings::reverseComplement(repDNAString)
+    ###rcSeq =  safe_reverseComplement(reporterSequence)
+## affy::ReadAffy bombs without a cdf.
+
+
+```{r get-data-read-cel, cache=T, cache.vars="ae_id_affyBatch", eval=F}
+
+ae_id_affyBatch <- affy::ReadAffy(celfile.path = params_lst$files_loc)
+
+```
+
+```
+AffyBatch object
+size of arrays=2560x2560 features (20 kb)
+cdf=Scerevisiae_tlg (??? affyids)
+number of samples=6
+Error in getCdfInfo(object) : 
+  Could not obtain CDF environment, problems encountered:
+Specified environment does not contain Scerevisiae_tlg
+Library - package scerevisiaetlgcdf not installed
+Bioconductor - scerevisiaetlgcdf not available
+In addition: Warning message:
+missing cdf environment! in show(AffyBatch)
+
+```
+
+
+   - each target locus on the genome of a sample gives rise 
+to two sets of fragments in the extraction, one for each strand.
+      - it will be useful to monitor the strand specific differences 
+inferred target concentrations as there is built in truth in this context.  
+         - there is a 4bp shift between the matching probes
+
+
+```{r get-dafa-array-data-look, cache=T,cache.vars='',eval = F}
+
+AE_array_frm %>%
+#dplyr::filter(!is.na(regionName)) %>%
+#dplyr::filter(regionName == "ref|NC_001133|") %>%
+dplyr::filter(regionName == "ref|NC_001224|") %>%
+dplyr::mutate(orientation = targetEnd - targetStart) %>%
+dplyr::arrange(targetPos) %>%
+  DT::datatable(extensions = 'Buttons', options = list(pageLength=50),
+                caption = "Mito Sequence (001224)")
+
+```
+
+
+
+
+<!-- To run
+# nohup Rscript -e "knitr::knit2html('_get_data.Rmd')" > _get_data.log  &
+
+# Or
+# nohup Rscript -e "rmarkdown::render('_get_data.Rmd')" > _get_data.log  &
+
+-->

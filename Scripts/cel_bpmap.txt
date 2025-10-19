@@ -1,0 +1,49 @@
+Annotating data from an Affymetrix tiling array for Saccharomyces cerevisiae involves mapping the probe sequences from the array back to the yeast reference genome. This process is different from annotating gene expression arrays because tiling arrays cover the entire genome, not just known genes. [1, 2, 3, 4]  
+The two primary types of annotation files required are: 
+
+•  file: A binary file containing the critical mapping information that links a probe's physical location on the array to its specific genomic coordinates. Affymetrix, now Thermo Fisher Scientific, provided these files for its arrays. 
+• Reference genome annotation file ( or ): This file provides the biological context for your experimental results by detailing the genomic features of S. cerevisiae (e.g., open reading frames, introns, and non-coding RNAs). The Saccharomyces Genome Database (SGD) is the primary resource for the S. cerevisiae S288c reference genome and its annotations. [1, 5, 6, 7, 8]  
+
+Software and tools for annotation 
+You will need specialized software and R packages to process the raw data and associate it with genomic features. The most common tools include: 
+
+• Bioconductor and R: The Bioconductor project provides a comprehensive suite of R packages for the analysis of genomic data, including tiling arrays. Packages like  are designed specifically for this task. 
+• Galaxy: This web-based platform offers a flexible environment for genomic data analysis, allowing customized and interactive annotation pipelines for sequenced genomes. 
+• Affymetrix Tiling Analysis Software (TAS): This software suite, formerly available from Affymetrix, was a standard tool for analyzing tiling array data. Thermo Fisher Scientific is the current provider of Affymetrix software, which now includes the Transcriptome Analysis Console (TAC). 
+• Integrated Genome Browser (IGB): This visualization tool can display Affymetrix data and annotations, helping to analyze and interpret results. [5, 8, 9, 10, 11, 12]  
+
+The annotation workflow 
+A typical annotation workflow for S. cerevisiae tiling array data involves these steps: 
+
+1. Data processing: The raw intensity data from the scanner (the  file) is normalized. Tools like those in the Bioconductor project are used to process these files. 
+2. Mapping probes to the genome: The  file is used to map the normalized probe intensities to the corresponding genomic coordinates. 
+3. Signal analysis: Statistical algorithms and signal processing techniques are used to identify enriched regions. For instance, in a ChIP-chip experiment, this involves identifying "peaks" that represent protein-DNA binding sites. 
+4. Feature annotation: The genomic coordinates of the enriched regions are compared against the S. cerevisiae annotation file (from SGD) to associate the signal with specific biological features like genes, promoter regions, or introns. For example, researchers may analyze how signals from a mutant compared to wild-type yeast align with known introns to identify previously undiscovered introns. 
+5. Data visualization: Specialized software (like IGB) can be used to visualize the probe intensities across the genome and overlay them with annotation tracks. [1, 5, 13, 14, 15]  
+
+Key resources for S. cerevisiae annotation 
+
+• Saccharomyces Genome Database (SGD): The definitive resource for yeast genome annotation, providing the most current and accurate genomic feature information. 
+• Bioconductor: A valuable source for open-source R packages that provide the necessary statistical and computational tools for the entire analysis pipeline. [1, 5, 16, 17, 18]  
+
+AI responses may include mistakes.
+
+[1] https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM1381937
+[2] https://www.bumc.bu.edu/microarray/services/affymetrix-genechip/
+[3] https://www.sciencedirect.com/topics/biochemistry-genetics-and-molecular-biology/tiling-array
+[4] https://www.researchgate.net/publication/5238786_At-TAX_A_whole_genome_tiling_array_resource_for_developmental_expression_analysis_and_transcript_identification_in_Arabidopsis_thaliana/fulltext/0f58eacc3829b1e54092adbe/At-TAX-A-whole-genome-tiling-array-resource-for-developmental-expression-analysis-and-transcript-identification-in-Arabidopsis-thaliana.pdf
+[5] https://www.bioconductor.org/packages//2.11/bioc/vignettes/Starr/inst/doc/Starr.pdf
+[6] https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GPL7250
+[7] https://www.bioconductor.org/packages/release/data/experiment/manuals/davidTiling/man/davidTiling.pdf
+[8] https://www.thermofisher.com/us/en/home/life-science/microarray-analysis/microarray-analysis-instruments-software-services/microarray-analysis-software/tiling-array-tools.html
+[9] https://www.bioconductor.org/packages//2.11/bioc/vignettes/Starr/inst/doc/Starr.pdf
+[10] https://pmc.ncbi.nlm.nih.gov/articles/PMC1780280/
+[11] https://academic.oup.com/bioinformatics/article/22/7/883/202782
+[12] https://pmc.ncbi.nlm.nih.gov/articles/PMC2041964/
+[13] https://academic.oup.com/bioinformatics/article/22/16/1963/208107
+[14] https://www.pnas.org/doi/10.1073/pnas.0610354104
+[15] https://pmc.ncbi.nlm.nih.gov/articles/PMC2041964/
+[16] https://pmc.ncbi.nlm.nih.gov/articles/PMC10504709/
+[17] https://pmc.ncbi.nlm.nih.gov/articles/PMC2770727/
+[18] https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781119654803.ch8
+

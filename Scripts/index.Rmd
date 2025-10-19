@@ -24,7 +24,7 @@ output:
 
 ```{css sidenote, echo = FALSE}
 
-.main-container {
+mmain-container {
     margin-left: 250px;
 }
 .sidenote, .marginnote { 
@@ -133,10 +133,48 @@ PREFIX <- "index" #- replace by FLOWCELL???
 
 <br/>
 
-```{r , child=c('_index.Rmd'), eval=T}
-```
+# Introduction
+
+
+* We are interested in learning about the preprocessing step referred to as 
+normalization in **Group Normalization for Genomic Data**, Ghandi and Beer 2012 [@Ghandi:2012aa]
+
+* David 2006 [@David:2006aa] and Huber 2006 [@Huber:2006aa] offer an alternative  
+procedure and provide data and software to assess performance.
 
 <br/>
+
+# AI queries 
+
+* [./claude_3.7_GNGD-chat/](./claude_3.7_GNGD-chat/)
+
+* [./claude_3.7_GNGD-project/](./claude_3.7_GNGD-project/)
+
+* [./claude_3.7_GNGD-project2/](./claude_3.7_GNGD-project2/)
+
+* [./claude_3.7_GNGD-project3/](./claude_3.7_GNGD-project3/)
+
+
+<br/>
+
+## Data Retrieval
+
+* [_get_data.Rmd](./_get_data.html)
+
+
+<br/>
+
+# Main Analysis
+
+* [_GN4GD_analysis.html](_GN4GD_analysis.html)
+
+
+
+
+
+<br/>
+
+
 
 # References {#references}
    
@@ -147,6 +185,7 @@ PREFIX <- "index" #- replace by FLOWCELL???
 ```{r, echo=FALSE}
   knitr::knit_exit()
 ```
+
 #############################################################
 #############################################################
 <!--

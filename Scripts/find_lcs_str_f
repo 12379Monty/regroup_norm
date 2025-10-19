@@ -1,0 +1,42 @@
+
+```{r get-data-find-lcs, cache=T, cache.vars = c("find_lcs_str_f")}
+
+# A common approach is to find the actual substring with a custom function.
+# The following Stack Overflow example uses a dynamic programming approach
+# to find the longest common substring.
+# Credit: https://stackoverflow.com/a/35384317/989255
+
+# Troubleshooting
+xxx  <- function() {
+JJ <- 1
+a <- nc_001133_frm$reporterSequence[JJ]
+b <-  nc_001133_frm$reporterSequence[JJ+1]
+}
+
+
+find_lcs_str_f <- function(a, b) {
+  A <- strsplit(a, "")[[1]]         # from strib
+  B <- strsplit(b, "")[[1]]
+  L <- matrix(0, length(A), length(B))
+  ones <- which(outer(A, B, "=="), arr.ind = TRUE)
+  ones <- ones[order(ones[, 1]), ]
+
+  for (i in 1:nrow(ones)) {
+    v <- ones[i, , drop = FALSE]
+    L[v] <- ifelse(any(v == 1), 1, L[v - 1] + 1)
+  }
+
+  max_len <- max(L)
+  if (max_len == 0) return("")
+  
+  max_loc <- which(L == max_len, arr.ind = TRUE)[1, ]
+  max_str <- paste0(A[(max_loc[1] - max_len + 1):max_loc[1]], collapse = "")
+
+  list(
+    loc = unlist(max_loc[1]) - max_len + 1, 
+    len = max_len,
+    lcs = max_str)
+
+} #find_lcs_str_f
+
+```

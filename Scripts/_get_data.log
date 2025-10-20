@@ -1,42 +1,60 @@
 
 
 processing file: _get_data.Rmd
-1/33                           
-2/33 [get-data-Prelims]        
-3/33                           
-4/33 [get-data-utilityFns]     
-5/33                           
-6/33 [get-data-params]         
-7/33                           
-8/33 [get-data-params-2]       
-9/33                           
-10/33 [get-data-read-desiqn]    
-11/33 [unnamed-chunk-1]         
-12/33                           
-13/33 [get-data-def-fun]        
-14/33                           
-15/33 [get-data-by-target]      
-16/33                           
-17/33 [get-data-by-target-2]    
-18/33 [unnamed-chunk-2]         
-19/33                           
-20/33 [get-data-subset-array]   
-21/33                           
-22/33 [get-data-display-array]  
-23/33                           
-24/33 [get-data-probe-sum]      
-25/33                           
-26/33 [get-data-reps-by-reg]    
-Error in `extra == "error"`:
-! comparison (==) is possible only for atomic and list types
+1/37                             
+2/37 [get-data-Prelims]          
+3/37                             
+4/37 [get-data-utilityFns]       
+5/37                             
+6/37 [get-data-params]           
+7/37                             
+8/37 [get-data-params-2]         
+9/37                             
+10/37 [get-data-read-desiqn]      
+11/37 [unnamed-chunk-1]           
+12/37                             
+13/37 [get-data-def-fun]          
+14/37                             
+15/37 [get-data-by-target]        
+16/37                             
+17/37 [get-data-by-target-2]      
+18/37 [unnamed-chunk-2]           
+19/37                             
+20/37 [get-data-subset-array]     
+21/37                             
+22/37 [get-data-display-array]    
+23/37                             
+24/37 [get-data-probe-sum]        
+25/37                             
+26/37 [get-data-probe-sum-table]  
+27/37                             
+28/37 [get-data-probe-sum-heatmap]
+29/37                             
+30/37 [get-data-reps-by-reg]      
+Error in `dplyr::mutate()`:
+ℹ In argument: `regName = sub("^ref|NC_", "", sub("|$", "",
+  regionName))`.
+Caused by error:
+! object 'regionName' not found
 Backtrace:
-    ▆
- 1. ├─... %>% dplyr::filter(probeSign == "0-1-25")
- 2. ├─dplyr::filter(., probeSign == "0-1-25")
- 3. ├─tidyr::separate(...)
- 4. └─tidyr:::separate.data.frame(...)
- 5.   └─tidyr:::str_separate(...)
- 6.     └─tidyr:::str_split_fixed(...)
+     ▆
+  1. ├─... %>% dplyr::select(-regionName)
+  2. ├─dplyr::select(., -regionName)
+  3. ├─dplyr::relocate(., regName)
+  4. ├─dplyr::mutate(...)
+  5. ├─dplyr:::mutate.data.frame(., regName = sub("^ref|NC_", "", sub("|$", "", regionName)))
+  6. │ └─dplyr:::mutate_cols(.data, dplyr_quosures(...), by)
+  7. │   ├─base::withCallingHandlers(...)
+  8. │   └─dplyr:::mutate_col(dots[[i]], data, mask, new_columns)
+  9. │     └─mask$eval_all_mutate(quo)
+ 10. │       └─dplyr (local) eval()
+ 11. ├─base::sub("^ref|NC_", "", sub("|$", "", regionName))
+ 12. │ └─base::is.factor(x)
+ 13. ├─base::sub("|$", "", regionName)
+ 14. │ └─base::is.factor(x)
+ 15. └─base::.handleSimpleError(...)
+ 16.   └─dplyr (local) h(simpleError(msg, call))
+ 17.     └─rlang::abort(message, class = error_class, parent = parent, call = error_call)
 
-Quitting from _get_data.Rmd:523-563 [get-data-reps-by-reg]
+Quitting from _get_data.Rmd:557-598 [get-data-reps-by-reg]
 Execution halted

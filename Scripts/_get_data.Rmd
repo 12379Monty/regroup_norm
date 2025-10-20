@@ -448,8 +448,8 @@ from alternating strands - 4-5-21~{mp|pm}
    - the next most prominent probe type (4.8%) occurs when the off-strand probe at
 4bp offset is missing - 8-9-17~{pp|mm}
    - the next most prominent probe type are replicates from the same strand,
-0-1-25~{pp|mm}.  Replicates from the off-strand are slightly less prominent -
-these have signature 0-1-25~{pm|mp}.
+00-01-25~{pp|mm}.  Replicates from the off-strand are slightly less prominent -
+these have signature 00-01-25~{pm|mp}.
    -  Other prominent signatures seen in Table \@(tab:get-data-probe-sum)
 are pseudo replicates at offsets of 1, 2, and 3 bp. 
 
@@ -539,7 +539,7 @@ replication
 * We each replicated sequence, how many replicates are there?
 
 * Collect set of replicated probes $\equiv$
-all probes with reporterRefSeq in the index set (i.e. in 0-1-25~{xx}
+all probes with reporterRefSeq in the index set (i.e. in 00-01-25~{xx}
 
 * Count strand specific reporterRefSeq multiplicity.
 
@@ -554,14 +554,7 @@ elements constitute only a fraction of the total variability,
 
 <br/>
 
-```{r get-data-reps-by-reg, cache =T, cache.vars='', results='asis'} 
-
-AE_array_plus_tibl %<>%
-dplyr::mutate(
-regName = sub("^ref|NC_",'',sub('|$', '', regionName))
-  ) %>%
-dplyr::relocate(regName) %>%
-dplyr::select(-regionName)
+```{r get-data-reps-by-regdata-reps-by-reg, cache =T, cache.vars='', results='asis'} 
 
 for(RN in unique(AE_array_plus_tibl$regName)) {
 
@@ -571,24 +564,20 @@ for(RN in unique(AE_array_plus_tibl$regName)) {
 
   index_reps_frm <-  reg_array_plus_tibl %>%
   tidyr::separate("probe_sign", into = "probeSign", sep ='~', extra="drop") %>%
-  dplyr::filter(probeSign == "0-1-25")
+  dplyr::filter(probeSign == "00-01-25")
 
   all_index_reporterRefSeq_frm <- merge( 
-  index_reps_frm %>% dplyr::select(regionName, targetPos, reporterRefSeq),
+  index_reps_frm %>% dplyr::select(regName, targetPos, reporterRefSeq),
   reg_array_plus_tibl)
 
   nreps_reporterRefSeq_frm <- all_index_reporterRefSeq_frm %>%
-  dplyr::group_by(regionName, targetPos, reporterRefSeq, sense) %>%
+  dplyr::group_by(regName, targetPos, reporterRefSeq, sense) %>%
   dplyr::summarize(nreps = dplyr::n())
 
-  nreps_reporterRefSeq_tbl <- with(nreps_reporterRefSeq_frm,
-  table(regionName, pmin(16, nreps))
-  )
-
- nreps_reporterRefSeq_tbl %>%
- knitr::kable(
- caption = paste("Number of sites by rep (roofed at 16): capture =", 
-  RN)
+  nreps_reporterRefSeq_frm %>% head() %>%
+   knitr::kable(
+   caption = paste("Number of sites by rep (roofed at 16): capture =", 
+   RN)
  )
 
   cat("\n\n") # Add newlines for proper Markdown rendering
@@ -906,9 +895,9 @@ inferred target concentrations as there is built in truth in this context.
 ```{r get-dafa-array-data-look, cache=T,cache.vars='',eval = F}
 
 AE_array_frm %>%
-#dplyr::filter(!is.na(regionName)) %>%
-#dplyr::filter(regionName == "ref|NC_001133|") %>%
-dplyr::filter(regionName == "ref|NC_001224|") %>%
+#dplyr::filter(!is.na(regName)) %>%
+#dplyr::filter(regName == "ref|NC_001133|") %>%
+dplyr::filter(regName == "001224") %>%
 dplyr::mutate(orientation = targetEnd - targetStart) %>%
 dplyr::arrange(targetPos) %>%
   DT::datatable(extensions = 'Buttons', options = list(pageLength=50),

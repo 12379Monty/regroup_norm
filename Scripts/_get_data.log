@@ -1,60 +1,40 @@
 
 
 processing file: _get_data.Rmd
-1/37                             
-2/37 [get-data-Prelims]          
-3/37                             
-4/37 [get-data-utilityFns]       
-5/37                             
-6/37 [get-data-params]           
-7/37                             
-8/37 [get-data-params-2]         
-9/37                             
-10/37 [get-data-read-desiqn]      
-11/37 [unnamed-chunk-1]           
-12/37                             
-13/37 [get-data-def-fun]          
-14/37                             
-15/37 [get-data-by-target]        
-16/37                             
-17/37 [get-data-by-target-2]      
-18/37 [unnamed-chunk-2]           
-19/37                             
-20/37 [get-data-subset-array]     
-21/37                             
-22/37 [get-data-display-array]    
-23/37                             
-24/37 [get-data-probe-sum]        
-25/37                             
-26/37 [get-data-probe-sum-table]  
-27/37                             
-28/37 [get-data-probe-sum-heatmap]
-29/37                             
-30/37 [get-data-reps-by-reg]      
-Error in `dplyr::mutate()`:
-ℹ In argument: `regName = sub("^ref|NC_", "", sub("|$", "",
-  regionName))`.
-Caused by error:
-! object 'regionName' not found
-Backtrace:
-     ▆
-  1. ├─... %>% dplyr::select(-regionName)
-  2. ├─dplyr::select(., -regionName)
-  3. ├─dplyr::relocate(., regName)
-  4. ├─dplyr::mutate(...)
-  5. ├─dplyr:::mutate.data.frame(., regName = sub("^ref|NC_", "", sub("|$", "", regionName)))
-  6. │ └─dplyr:::mutate_cols(.data, dplyr_quosures(...), by)
-  7. │   ├─base::withCallingHandlers(...)
-  8. │   └─dplyr:::mutate_col(dots[[i]], data, mask, new_columns)
-  9. │     └─mask$eval_all_mutate(quo)
- 10. │       └─dplyr (local) eval()
- 11. ├─base::sub("^ref|NC_", "", sub("|$", "", regionName))
- 12. │ └─base::is.factor(x)
- 13. ├─base::sub("|$", "", regionName)
- 14. │ └─base::is.factor(x)
- 15. └─base::.handleSimpleError(...)
- 16.   └─dplyr (local) h(simpleError(msg, call))
- 17.     └─rlang::abort(message, class = error_class, parent = parent, call = error_call)
+1/37                                       
+2/37 [get-data-Prelims]                    
+3/37                                       
+4/37 [get-data-utilityFns]                 
+5/37                                       
+6/37 [get-data-params]                     
+7/37                                       
+8/37 [get-data-params-2]                   
+9/37                                       
+10/37 [get-data-read-desiqn]                
+11/37 [unnamed-chunk-1]                     
+12/37                                       
+13/37 [get-data-def-fun]                    
+14/37                                       
+15/37 [get-data-by-target]                  
+16/37                                       
+17/37 [get-data-by-target-2]                
+18/37 [unnamed-chunk-2]                     
+19/37                                       
+20/37 [get-data-subset-array]               
+21/37                                       
+22/37 [get-data-display-array]              
+23/37                                       
+24/37 [get-data-probe-sum]                  
+25/37                                       
+26/37 [get-data-probe-sum-table]            
+27/37                                       
+28/37 [get-data-probe-sum-heatmap]          
+29/37                                       
+30/37 [get-data-reps-by-regdata-reps-by-reg]
+31/37                                       
+32/37 [unnamed-chunk-3]                     
+output file: _get_data.knit.md
 
-Quitting from _get_data.Rmd:557-598 [get-data-reps-by-reg]
-Execution halted
+/usr/local/bin/pandoc +RTS -K512m -RTS _get_data.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output _get_data.html --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/bookdown/rmarkdown/lua/custom-environment.lua --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmarkdown/lua/table-classes.lua --embed-resources --standalone --wrap preserve --variable bs3=TRUE --section-divs --table-of-contents --toc-depth 2 --template /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/library/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --number-sections --include-before-body /var/folders/sd/l5v8_p393yn5fhchqdjypvfw0000gn/T//RtmpnEXQPb/rmarkdown-str586b7f8df7e8.html --variable navbar=1 --variable theme=bootstrap --mathjax --variable 'mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --include-in-header /var/folders/sd/l5v8_p393yn5fhchqdjypvfw0000gn/T//RtmpnEXQPb/rmarkdown-str586b418ee1c4.html --variable code_folding=hide --variable source_embed=_get_data.Rmd --include-after-body /var/folders/sd/l5v8_p393yn5fhchqdjypvfw0000gn/T//RtmpnEXQPb/file586bb882c7c.html --variable code_menu=1 --citeproc 
+
+Output created: _get_data.html
